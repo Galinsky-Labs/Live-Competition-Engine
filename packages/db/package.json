@@ -10,7 +10,8 @@
     "./tenant-theme": "./src/tenant-theme.ts",
     "./tenant-brand-assets": "./src/tenant-brand-assets.ts",
     "./tenant-domains": "./src/tenant-domains.ts",
-    "./feature-flags": "./src/feature-flags.ts"
+    "./feature-flags": "./src/feature-flags.ts",
+    "./entitlements": "./src/entitlements.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
