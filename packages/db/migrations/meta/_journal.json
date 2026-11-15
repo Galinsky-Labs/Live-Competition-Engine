@@ -92,6 +92,13 @@
       "when": 1792374000000,
       "tag": "0012_events_config",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1792374600000,
+      "tag": "0013_stages_brackets",
+      "breakpoints": true
     }
   ]
 }

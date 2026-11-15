@@ -20,7 +20,8 @@
     "./audit": "./src/audit.ts",
     "./credential-store": "./src/credential-store.ts",
     "./organizations": "./src/organizations.ts",
-    "./events": "./src/events.ts"
+    "./events": "./src/events.ts",
+    "./stages": "./src/stages.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
