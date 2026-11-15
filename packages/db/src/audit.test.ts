@@ -12,13 +12,13 @@ test("audit chain is append-only, gap-free and verifiable", async () => {
   const sql = getSqlClient();
   const org = randomUUID();
   try {
-    await Promise.all(Array.from({ length: 8 }, (_, i) => sql.begin(tx => recordAudit(tx, {
+    await Promise.all(Array.from({ length: 12 }, (_, i) => sql.begin(tx => recordAudit(tx, {
       organizationId: org, actorAccountId: null, action: "test.recorded",
       subjectType: "test", subjectId: String(i), details: { i, nested: { z: 1, a: 2 } }
     }))));
     const verification = await verifyAuditChain(org);
     assert.equal(verification.valid, true);
-    assert.equal(verification.count, 8);
+    assert.equal(verification.count, 12);
     await assert.rejects(sql`UPDATE audit_events SET details = '{}' WHERE chain_key = ${org}`, /append-only/);
     await assert.rejects(sql`DELETE FROM audit_events WHERE chain_key = ${org}`, /append-only/);
     // A rolled-back state change leaves no audit evidence.
@@ -26,7 +26,7 @@ test("audit chain is append-only, gap-free and verifiable", async () => {
       await recordAudit(tx, { organizationId: org, actorAccountId: null, action: "test.rolled_back", subjectType: "test", subjectId: "x" });
       throw new Error("abort");
     }), /abort/);
-    assert.equal((await verifyAuditChain(org)).count, 8);
+    assert.equal((await verifyAuditChain(org)).count, 12);
   } finally {
     await closeDatabaseConnection();
   }

@@ -57,7 +57,7 @@ export async function recordAudit(tx: Sql, input: AuditInput): Promise<AuditReco
   await tx`SELECT pg_advisory_xact_lock(hashtextextended(${"audit:" + chainKey}, 0))`;
   const [last] = await tx<{ sequence: string; hash: string }[]>`
     SELECT sequence::text, hash FROM audit_events
-    WHERE chain_key = ${chainKey} ORDER BY sequence DESC LIMIT 1
+    WHERE chain_key = ${chainKey} ORDER BY audit_events.sequence DESC LIMIT 1
   `;
   const sequence = last ? Number(last.sequence) + 1 : 1;
   const previousHash = last?.hash ?? GENESIS;
@@ -106,7 +106,7 @@ export async function verifyAuditChain(organizationId: string | null, sql: Sql =
   }[]>`
     SELECT organization_id, sequence::text, actor_account_id, action, subject_type, subject_id,
       details, recorded_at, previous_hash, hash
-    FROM audit_events WHERE chain_key = ${chainKey} ORDER BY sequence
+    FROM audit_events WHERE chain_key = ${chainKey} ORDER BY audit_events.sequence
   `;
   let previous = GENESIS;
   for (const [index, row] of rows.entries()) {
@@ -146,6 +146,6 @@ export async function listAuditEvents(
       ${options.beforeSequence ? sql`AND sequence < ${options.beforeSequence}` : sql``}
       ${options.subjectType ? sql`AND subject_type = ${options.subjectType}` : sql``}
       ${options.subjectId ? sql`AND subject_id = ${options.subjectId}` : sql``}
-    ORDER BY sequence DESC LIMIT ${limit}
+    ORDER BY audit_events.sequence DESC LIMIT ${limit}
   `;
 }
