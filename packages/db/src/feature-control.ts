@@ -29,9 +29,9 @@ function parseRevision(value: unknown): number {
 }
 
 /** Translate LC-08's plain errors into DomainError codes. */
-async function lc08Write(update: FeatureFlagUpdate): Promise<number> {
+async function lc08Write(update: FeatureFlagUpdate, tx: Sql): Promise<number> {
   try {
-    return await setFeatureFlag(update);
+    return await setFeatureFlag(update, tx);
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
     if (/revision conflict/.test(message)) throw new DomainError("revision_conflict");
@@ -51,7 +51,7 @@ export async function setPlatformFeature(
   const expectedRevision = parseRevision(input.expectedRevision);
   return getSqlClient().begin(async tx => {
     await tx`SELECT pg_advisory_xact_lock(hashtextextended(${"feature-platform:" + feature}, 0))`;
-    const revision = await lc08Write({ scope: "platform", feature, enabled: input.enabled as boolean, expectedRevision, actorAccountId });
+    const revision = await lc08Write({ scope: "platform", feature, enabled: input.enabled as boolean, expectedRevision, actorAccountId }, tx);
     await recordAudit(tx, {
       organizationId: null, actorAccountId, action: "feature.platform_flag_set", subjectType: "feature_flag",
       subjectId: `platform:${feature}`, details: { feature, enabled: input.enabled, revision }
@@ -98,7 +98,7 @@ export async function setTenantScopedFeature(
       scope, organizationId, feature, enabled, expectedRevision, actorAccountId,
       ...(scope === "event" ? { eventId: input.eventId as string } : {}),
       ...(scope === "account" ? { accountId: input.accountId as string } : {})
-    });
+    }, tx);
     const target = scope === "event" ? input.eventId : scope === "account" ? input.accountId : organizationId;
     await recordAudit(tx, {
       organizationId, actorAccountId, action: "feature.tenant_flag_set", subjectType: "feature_flag",
@@ -147,7 +147,7 @@ export async function setTenantCeiling(
       if (!flag || flag.enabled) {
         tenantFlagRevision = await lc08Write({
           scope: "tenant", organizationId, feature, enabled: false, expectedRevision: flag?.revision ?? 0, actorAccountId
-        });
+        }, tx);
       } else {
         tenantFlagRevision = flag.revision;
       }

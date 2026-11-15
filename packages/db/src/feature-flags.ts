@@ -7,6 +7,7 @@ import {
   type FeatureScope
 } from "@live-competition-engine/config/features";
 import { getSqlClient } from "./index.ts";
+import type { Sql } from "./audit.ts";
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -47,10 +48,11 @@ function validateUpdate(input: FeatureFlagUpdate): void {
 
 /** Persist a single authorized setting. The HTTP caller must authorize platform,
  * tenant or event management before calling. Revision compare prevents lost updates. */
-export async function setFeatureFlag(input: FeatureFlagUpdate): Promise<number> {
+export async function setFeatureFlag(input: FeatureFlagUpdate, executor?: Sql): Promise<number> {
   validateUpdate(input);
-  const sql = getSqlClient();
-  return sql.begin(async tx => {
+  // With an executor the write joins the caller's transaction (so an audit record written
+  // by the caller commits or rolls back together with the flag change).
+  const run = async (tx: Sql) => {
     if (input.scope === "event") {
       const rows = await tx`SELECT 1 FROM competitions WHERE id = ${input.eventId!} AND organization_id = ${input.organizationId!}`;
       if (rows.length !== 1) throw new Error("Feature event scope denied.");
@@ -78,7 +80,8 @@ export async function setFeatureFlag(input: FeatureFlagUpdate): Promise<number> 
       throw new Error("Feature policy revision conflict.");
     }
     return rows[0]!.revision;
-  });
+  };
+  return executor ? run(executor) : getSqlClient().begin(run);
 }
 
 /** Read exactly the supplied, server-authorized scopes and commit an audit entry

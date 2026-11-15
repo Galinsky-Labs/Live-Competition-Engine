@@ -1,6 +1,6 @@
 import test, { after } from "node:test";
 import assert from "node:assert/strict";
-import { closeDatabaseConnection } from "./index.ts";
+import { closeDatabaseConnection, getSqlClient } from "./index.ts";
 import { createAccount, createCompetition, createTenant, enableFeature } from "./test-fixtures.ts";
 import { isFeatureEnabled, requireEnabledFeature } from "./feature-guard.ts";
 
@@ -14,6 +14,9 @@ test("feature guard: enabled, disabled and cross-tenant scope map to typed error
   const foreignAccount = await createAccount(other);
   await enableFeature("polls", org, actor);
   await requireEnabledFeature("polls", { organizationId: org, accountId: actor });
+  // Explicit tenant veto: the platform row is shared with concurrently running tests.
+  await getSqlClient()`INSERT INTO feature_flags (scope_key, feature, scope, organization_id, enabled, revision, updated_by_account_id)
+    VALUES (${`tenant:${org}`}, 'ppv', 'tenant', ${org}, false, 1, ${actor})`;
   assert.equal(await isFeatureEnabled("ppv", { organizationId: org }), false);
   await assert.rejects(requireEnabledFeature("ppv", { organizationId: org }), { code: "feature_disabled" });
   await assert.rejects(requireEnabledFeature("polls", { organizationId: org, eventId: foreignEvent }), { code: "forbidden" });
