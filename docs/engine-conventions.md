@@ -80,3 +80,6 @@ use deterministic fakes. Never claim a mock proves production behavior.
 `packages/db/src/test-fixtures.ts` creates unique tenants, accounts, grants, competitions,
 entries and feature flags. Tests must be safe to run concurrently against one database:
 use random IDs and never truncate shared tables.
+
+Provider credentials are declared in `packages/config/src/providers.ts` (all optional). Use
+`requireStripe()`, `requireMux()`, `requirePostmark()`; they throw `provider_not_configured`.
