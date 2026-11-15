@@ -28,6 +28,8 @@ export interface JsonFormProps {
   redirectTo?: string | "refresh";
   /** Optional transform, e.g. to nest fields. */
   shape?: "flat" | "json-field";
+  /** Nest number fields under this key (e.g. `scores`). */
+  nest?: string;
   children?: ReactNode;
 }
 
@@ -41,7 +43,7 @@ const messages: Record<string, string> = {
   missing: "Please sign in first."
 };
 
-export function JsonForm({ action, method = "POST", fields, submitLabel, extra, redirectTo = "refresh", children }: JsonFormProps) {
+export function JsonForm({ action, method = "POST", fields, submitLabel, extra, redirectTo = "refresh", nest, children }: JsonFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -56,6 +58,7 @@ export function JsonForm({ action, method = "POST", fields, submitLabel, extra, 
       const raw = form.get(field.name);
       if (field.type === "checkbox") body[field.name] = raw === "on";
       else if (raw === null || raw === "") continue;
+      else if (field.type === "number" && nest) body[nest] = { ...(body[nest] as Record<string, unknown> | undefined), [field.name]: Number(raw) };
       else if (field.type === "number") body[field.name] = Number(raw);
       else if (field.type === "datetime-local") body[field.name] = new Date(String(raw)).toISOString();
       else if (field.name.endsWith("Json")) {
@@ -125,7 +128,7 @@ export function JsonForm({ action, method = "POST", fields, submitLabel, extra, 
 }
 
 /** A single-click action button (e.g. publish, start timer). */
-export function ActionButton({ action, method = "POST", body, label, confirm: confirmText }: { action: string; method?: "POST" | "DELETE" | "PUT"; body?: Record<string, unknown>; label: string; confirm?: string }) {
+export function ActionButton({ action, method = "POST", body, label, confirm: confirmText }: { action: string; method?: "POST" | "DELETE" | "PUT" | "PATCH"; body?: Record<string, unknown>; label: string; confirm?: string }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
