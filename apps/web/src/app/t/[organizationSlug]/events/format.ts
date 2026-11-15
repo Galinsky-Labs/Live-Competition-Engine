@@ -2,7 +2,10 @@
 export function formatInZone(date: Date | null, timeZone: string): string | null {
   if (!date) return null;
   try {
-    return new Intl.DateTimeFormat("en", { dateStyle: "full", timeStyle: "short", timeZone, timeZoneName: "short" }).format(date);
+    return new Intl.DateTimeFormat("en", {
+      weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "2-digit",
+      timeZone, timeZoneName: "short"
+    }).format(date);
   } catch {
     return date.toISOString();
   }

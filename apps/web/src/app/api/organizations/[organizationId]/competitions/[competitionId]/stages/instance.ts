@@ -1,3 +1,4 @@
+import { bracketWinnersForStage } from "@live-competition-engine/db/brackets";
 import {
   createStage,
   decideAdvancement,
@@ -15,6 +16,7 @@ export const stageHandlers = createStageHandlers(authService(), {
   update: updateStage,
   reorder: reorderStages,
   decide: (organizationId, competitionId, stageId, actorAccountId, input) =>
-    decideAdvancement(organizationId, competitionId, stageId, actorAccountId, input),
+    // Bracket contracts resolve the champion of the stage's (optional, LC-16) bracket.
+    decideAdvancement(organizationId, competitionId, stageId, actorAccountId, input, { bracketWinners: bracketWinnersForStage }),
   getDecision: getAdvancement
 });
