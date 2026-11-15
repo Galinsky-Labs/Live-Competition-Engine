@@ -3,7 +3,10 @@ import { z } from "zod";
 export const featureKeySchema = z.enum([
   "ticketing", "entry_fees", "ppv", "subscriptions", "creator_memberships",
   "tips_gifts", "sponsorship", "advertising", "merchandise", "booking",
-  "saas", "custom_domains", "analytics", "storage", "chat", "voting"
+  "saas", "custom_domains", "analytics", "storage", "chat", "voting",
+  "follows", "public_profiles", "applications", "brackets", "critiques",
+  "streaming", "reactions", "polls", "questions", "content_paywalls",
+  "notifications", "email", "cms"
 ]);
 export type FeatureKey = z.infer<typeof featureKeySchema>;
 const id = z.string().uuid();
