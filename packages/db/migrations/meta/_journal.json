@@ -90,55 +90,90 @@
       "idx": 12,
       "version": "7",
       "when": 1792374000000,
-      "tag": "0040_rate_limits",
+      "tag": "0030_streaming",
       "breakpoints": true
     },
     {
       "idx": 13,
       "version": "7",
       "when": 1792374600000,
-      "tag": "0041_audience_interaction",
+      "tag": "0031_backstage",
       "breakpoints": true
     },
     {
       "idx": 14,
       "version": "7",
       "when": 1792375200000,
-      "tag": "0042_voting",
+      "tag": "0032_stage_timers",
       "breakpoints": true
     },
     {
       "idx": 15,
       "version": "7",
       "when": 1792375800000,
-      "tag": "0043_vote_snapshots",
+      "tag": "0033_control_room",
       "breakpoints": true
     },
     {
       "idx": 16,
       "version": "7",
       "when": 1792376400000,
-      "tag": "0044_voting_integrity",
+      "tag": "0034_broadcast",
       "breakpoints": true
     },
     {
       "idx": 17,
       "version": "7",
       "when": 1792377000000,
-      "tag": "0080_saas_plans",
+      "tag": "0040_rate_limits",
       "breakpoints": true
     },
     {
       "idx": 18,
       "version": "7",
       "when": 1792377600000,
-      "tag": "0081_tenant_signup",
+      "tag": "0041_audience_interaction",
       "breakpoints": true
     },
     {
       "idx": 19,
       "version": "7",
       "when": 1792378200000,
+      "tag": "0042_voting",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792378800000,
+      "tag": "0043_vote_snapshots",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1792379400000,
+      "tag": "0044_voting_integrity",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1792380000000,
+      "tag": "0080_saas_plans",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792380600000,
+      "tag": "0081_tenant_signup",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792381200000,
       "tag": "0082_platform_admin",
       "breakpoints": true
     }
