@@ -26,7 +26,7 @@ async function tenantWithFollows() {
 
 async function publishedEvent(org: string): Promise<string> {
   const id = await createCompetition(org, "Followable event");
-  await getSqlClient()`UPDATE competitions SET status = 'published' WHERE id = ${id}`;
+  await getSqlClient()`UPDATE competitions SET status = 'published', visibility = 'public' WHERE id = ${id}`;
   return id;
 }
 

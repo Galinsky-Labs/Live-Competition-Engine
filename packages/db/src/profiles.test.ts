@@ -98,8 +98,10 @@ test("linked history comes only from final results of published events", async (
   const published = await createCompetition(org, "Published event");
   const draft = await createCompetition(org, "Draft event");
   const provisional = await createCompetition(org, "Provisional event");
-  await sql`UPDATE competitions SET status = 'completed' WHERE id IN (${published}, ${provisional})`;
-  for (const [competitionId, status] of [[published, "final"], [draft, "final"], [provisional, "provisional"]] as const) {
+  const privateEvent = await createCompetition(org, "Private event");
+  await sql`UPDATE competitions SET status = 'completed', visibility = 'public' WHERE id IN (${published}, ${provisional})`;
+  await sql`UPDATE competitions SET status = 'completed', visibility = 'private' WHERE id = ${privateEvent}`;
+  for (const [competitionId, status] of [[published, "final"], [draft, "final"], [provisional, "provisional"], [privateEvent, "final"]] as const) {
     const { participantId, entryId } = await createEntry(org, competitionId);
     await linkParticipantAccount(org, participantId, owner, operator);
     await sql`INSERT INTO results (organization_id, competition_id, entry_id, rank, status)

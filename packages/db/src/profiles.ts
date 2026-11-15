@@ -40,11 +40,12 @@ export interface StoredProfile {
 /**
  * Linked history: events where an entry of a participant linked to the owner
  * account has a FINAL result, and the event is no longer a draft or cancelled.
- * Every non-draft, non-cancelled event is treated as public history here.
+ * Only events whose visibility is `public` are flagged public; the projection drops
+ * the rest (including for the owner).
  */
 async function loadHistory(sql: Sql, organizationId: string, accountId: string): Promise<PublicHistoryItem[]> {
   const rows = await sql<{ id: string; title: string; is_public: boolean }[]>`
-    SELECT c.id, c.title, true AS is_public
+    SELECT c.id, c.title, (c.visibility = 'public') AS is_public
     FROM competitions c
     WHERE c.organization_id = ${organizationId}
       AND c.status IN ('published', 'live', 'paused', 'completed')

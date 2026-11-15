@@ -34,7 +34,8 @@ export function parseFollowTarget(input: { targetType?: unknown; targetId?: unkn
 
 /**
  * Is the target visible to the viewer (null = anonymous)? Profiles: not hidden,
- * active owner, public (or members-only for members, or own). Events: not drafts.
+ * active owner, public (or members-only for members, or own). Events: not drafts
+ * and not private; members-only events require a member viewer.
  */
 async function targetVisible(sql: Sql, organizationId: string, target: FollowTarget, viewerAccountId: string | null): Promise<boolean> {
   if (target.type === "organization") return target.id === organizationId;
@@ -50,7 +51,7 @@ async function targetVisible(sql: Sql, organizationId: string, target: FollowTar
     return row?.ok === true;
   }
   const [row] = await sql<{ ok: boolean }[]>`
-    SELECT true AS ok
+    SELECT (c.visibility = 'public' OR (c.visibility = 'members' AND ${viewerAccountId !== null})) AS ok
     FROM competitions c
     WHERE c.organization_id = ${organizationId} AND c.id = ${target.id} AND c.status <> 'draft'
   `;
