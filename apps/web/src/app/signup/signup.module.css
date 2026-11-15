@@ -34,7 +34,8 @@
 }
 
 .field input,
-.field textarea {
+.field textarea,
+.field select {
   font: inherit;
   color: #f5f5f5;
   background: #141414;
@@ -45,6 +46,7 @@
 
 .field input:focus-visible,
 .field textarea:focus-visible,
+.field select:focus-visible,
 .button:focus-visible,
 .link:focus-visible,
 .plan input:focus-visible {

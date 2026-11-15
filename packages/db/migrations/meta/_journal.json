@@ -99,6 +99,13 @@
       "when": 1792374600000,
       "tag": "0081_tenant_signup",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1792375200000,
+      "tag": "0082_platform_admin",
+      "breakpoints": true
     }
   ]
 }

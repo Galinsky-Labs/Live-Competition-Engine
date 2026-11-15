@@ -1,6 +1,7 @@
 import { parseServerEnv } from "@live-competition-engine/config";
 import { parseProviderEnv } from "@live-competition-engine/config/providers";
 import * as signup from "@live-competition-engine/db/tenant-signup";
+import { assertTenantActive } from "@live-competition-engine/db/platform-admin";
 import { authService } from "./services";
 import { tenantGuard } from "./saas-services";
 
@@ -32,7 +33,7 @@ export const onboardingDeps = {
   checklist: signup.getOnboardingChecklist,
   setSkipped: signup.setOnboardingStepSkipped,
   createFirstEvent: (organizationId: string, actorAccountId: string, input: unknown) =>
-    signup.createFirstEvent(organizationId, actorAccountId, input),
+    signup.createFirstEvent(organizationId, actorAccountId, input, { assertActive: assertTenantActive }),
   guard: tenantGuard
 };
 

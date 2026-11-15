@@ -1,4 +1,5 @@
 import * as plans from "@live-competition-engine/db/saas-plans";
+import { assertTenantActive } from "@live-competition-engine/db/platform-admin";
 import { authService } from "./services";
 
 /** Postgres-backed wiring for LC-49 plan/subscription/usage handlers. */
@@ -19,7 +20,7 @@ export const subscriptionDeps = {
   checkPlanLimit: plans.checkPlanLimit
 };
 
-/** Tenant lifecycle guard for tenant-scoped APIs in this module (replaced by LC-53 assertTenantActive). */
-export const tenantGuard = async (_organizationId: string): Promise<void> => undefined;
+/** LC-53 tenant lifecycle guard for tenant-scoped APIs: suspended/deleted tenants are refused. */
+export const tenantGuard = (organizationId: string): Promise<void> => assertTenantActive(organizationId);
 
 export { authService };
