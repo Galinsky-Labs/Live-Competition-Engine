@@ -1,0 +1,23 @@
+# Render Blueprint documenting the hosted service (free plan).
+# Secrets are never committed; values marked `sync: false` are set in the Render dashboard/API.
+services:
+  - type: web
+    name: live-competition-engine
+    runtime: node
+    plan: free
+    region: ohio
+    branch: main
+    autoDeploy: true
+    buildCommand: npm install && npm run build
+    # Applies checked-in migrations, then serves Next.js on 0.0.0.0:$PORT.
+    startCommand: npm run db:migrate && npm run start -w @live-competition-engine/web
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: DATABASE_URL # Neon pooled connection string
+        sync: false
+      - key: DATABASE_MIGRATION_URL # Neon direct connection string (migrations)
+        sync: false
+      - key: APP_URL
+        value: https://live-competition-engine.onrender.com
