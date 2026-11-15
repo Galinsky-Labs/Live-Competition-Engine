@@ -1,3 +1,4 @@
+import { contentHooks } from "./paywalls.ts";
 import type { PaymentHooks } from "./payments.ts";
 import { splitHooks } from "./revenue-splits.ts";
 import { subscriptionHooks } from "./subscriptions.ts";
@@ -39,5 +40,5 @@ export function composeHooks(...sets: PaymentHooks[]): PaymentHooks {
  * refund endpoints pass these hooks so every path applies the same effects.
  */
 export function fulfillmentHooks(): PaymentHooks {
-  return composeHooks(splitHooks, ticketingHooks, subscriptionHooks);
+  return composeHooks(splitHooks, ticketingHooks, subscriptionHooks, contentHooks);
 }
