@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { EventRecord } from "@live-competition-engine/db/events";
+import { ManageRegistration, PublicRegistration } from "@/sections/registration";
 import { ManageStages, PublicStages } from "@/sections/stages";
 
 export interface SectionProps {
@@ -10,6 +11,6 @@ export type Section = (props: SectionProps) => Promise<ReactNode> | ReactNode;
 
 /** Units register server-rendered sections for the public event page and the producer console. */
 export const eventSections: { public: Section[]; manage: Section[] } = {
-  public: [PublicStages],
-  manage: [ManageStages]
+  public: [PublicRegistration, PublicStages],
+  manage: [ManageRegistration, ManageStages]
 };

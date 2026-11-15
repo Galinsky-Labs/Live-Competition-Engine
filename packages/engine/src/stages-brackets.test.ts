@@ -46,3 +46,17 @@ test("round robin pairs everyone exactly once, odd counts rest in turn", () => {
   assert.equal(keys.size, 10);
   assert.equal(Math.max(...pairs.map(p => p.round)), 5);
 });
+
+import { applicationInputSchema, assertApplicationMove } from "./registration.ts";
+
+test("application transitions: producers decide, applicants only withdraw, reversals need reasons", () => {
+  assertApplicationMove("producer", "submitted", "selected");
+  assertApplicationMove("producer", "waitlisted", "selected");
+  assertApplicationMove("applicant", "selected", "withdrawn");
+  assert.throws(() => assertApplicationMove("applicant", "submitted", "selected"), /invalid_application_transition/);
+  assert.throws(() => assertApplicationMove("producer", "withdrawn", "selected"), /invalid_application_transition/);
+  assert.throws(() => assertApplicationMove("producer", "selected", "rejected"), /decision_reason_required/);
+  assertApplicationMove("producer", "rejected", "under_review", "Appeal accepted");
+  assert.equal(applicationInputSchema.safeParse({ displayName: "X", consent: { accepted: false, version: "v1" } }).success, false);
+  assert.equal(applicationInputSchema.safeParse({ displayName: "X", consent: { accepted: true, version: "v1" } }).success, true);
+});

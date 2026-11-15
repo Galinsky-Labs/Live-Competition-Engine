@@ -21,7 +21,8 @@
     "./credential-store": "./src/credential-store.ts",
     "./organizations": "./src/organizations.ts",
     "./events": "./src/events.ts",
-    "./stages": "./src/stages.ts"
+    "./stages": "./src/stages.ts",
+    "./registration": "./src/registration.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
