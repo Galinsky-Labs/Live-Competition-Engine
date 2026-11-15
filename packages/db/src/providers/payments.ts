@@ -76,6 +76,6 @@ export type PaymentEvent =
   | { kind: "chargeback"; paymentReference: string; amountMinor: number; currency: string; disputeId: string }
   | { kind: "subscription_checkout_completed"; organizationId: string; subscriptionId: string; providerSubscriptionId: string }
   | { kind: "subscription_checkout_expired"; organizationId: string; subscriptionId: string }
-  | { kind: "invoice_paid"; providerSubscriptionId: string; invoiceId: string; paymentReference: string | null; amountMinor: number; currency: string; periodStart: Date; periodEnd: Date }
-  | { kind: "invoice_payment_failed"; providerSubscriptionId: string; invoiceId: string }
-  | { kind: "subscription_ended"; providerSubscriptionId: string };
+  | { kind: "invoice_paid"; providerSubscriptionId: string; organizationId: string | null; subscriptionId: string | null; invoiceId: string; paymentReference: string | null; amountMinor: number; currency: string; periodStart: Date; periodEnd: Date }
+  | { kind: "invoice_payment_failed"; providerSubscriptionId: string; organizationId: string | null; subscriptionId: string | null; invoiceId: string }
+  | { kind: "subscription_ended"; providerSubscriptionId: string; organizationId: string | null; subscriptionId: string | null };

@@ -135,8 +135,10 @@ export function normalizeStripeEvent(event: Json): PaymentEvent | null {
       return { kind: "chargeback", paymentReference, amountMinor, currency: currency.toUpperCase(), disputeId };
     }
     case "invoice.paid": {
-      const parent = obj(obj(object.parent).subscription_details);
-      const providerSubscriptionId = ref(object.subscription) ?? ref(parent.subscription);
+      // API versions differ: `subscription`/`subscription_details` (2024) vs `parent.subscription_details` (2025+).
+      const details = { ...obj(object.subscription_details), ...obj(obj(object.parent).subscription_details) };
+      const providerSubscriptionId = ref(object.subscription) ?? ref(details.subscription);
+      const subscriptionMetadata = obj(details.metadata);
       const invoiceId = str(object.id);
       const amountMinor = int(object.amount_paid);
       const currency = str(object.currency);
@@ -147,20 +149,25 @@ export function normalizeStripeEvent(event: Json): PaymentEvent | null {
       if (!providerSubscriptionId || !invoiceId || amountMinor === null || !currency || start === null || end === null || end <= start) return null;
       return {
         kind: "invoice_paid", providerSubscriptionId, invoiceId, paymentReference: ref(object.payment_intent),
+        organizationId: uuidOrNull(subscriptionMetadata.organization_id), subscriptionId: uuidOrNull(subscriptionMetadata.subscription_id),
         amountMinor, currency: currency.toUpperCase(), periodStart: new Date(start * 1000), periodEnd: new Date(end * 1000)
       };
     }
     case "invoice.payment_failed": {
-      const parent = obj(obj(object.parent).subscription_details);
-      const providerSubscriptionId = ref(object.subscription) ?? ref(parent.subscription);
+      const details = { ...obj(object.subscription_details), ...obj(obj(object.parent).subscription_details) };
+      const providerSubscriptionId = ref(object.subscription) ?? ref(details.subscription);
+      const subscriptionMetadata = obj(details.metadata);
       const invoiceId = str(object.id);
       if (!providerSubscriptionId || !invoiceId) return null;
-      return { kind: "invoice_payment_failed", providerSubscriptionId, invoiceId };
+      return {
+        kind: "invoice_payment_failed", providerSubscriptionId, invoiceId,
+        organizationId: uuidOrNull(subscriptionMetadata.organization_id), subscriptionId: uuidOrNull(subscriptionMetadata.subscription_id)
+      };
     }
     case "customer.subscription.deleted": {
       const providerSubscriptionId = str(object.id);
       if (!providerSubscriptionId) return null;
-      return { kind: "subscription_ended", providerSubscriptionId };
+      return { kind: "subscription_ended", providerSubscriptionId, organizationId, subscriptionId };
     }
     default:
       return null;

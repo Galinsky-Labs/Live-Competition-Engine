@@ -406,6 +406,23 @@ async function settleSucceeded(
   return done;
 }
 
+/**
+ * Record a payment the provider already captured on its own schedule (e.g. a
+ * subscription invoice): order + ledger + hooks in the caller's transaction.
+ * Idempotent through the order idempotency key.
+ */
+export async function recordCapturedPayment(
+  tx: Sql,
+  input: CreateOrderInput,
+  paymentReference: string,
+  hooks: PaymentHooks = {}
+): Promise<{ order: PaymentOrder; created: boolean }> {
+  const { order, created } = await createPaymentOrder(tx, input);
+  if (!created) return { order, created };
+  if (order.amountMinor === 0) return { order: await completeFreeOrder(tx, order, hooks), created };
+  return { order: await settleSucceeded(tx, order, paymentReference, hooks, "provider_captured"), created };
+}
+
 /** Create a hosted checkout for an order and move it to processing. */
 export async function startCheckout(
   organizationId: string,
