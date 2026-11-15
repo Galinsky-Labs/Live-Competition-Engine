@@ -47,3 +47,8 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - name: Cross-tenant penetration probe (LC-54)
+        run: |
+          (cd apps/web && npx next start -p 3100 > ../../next-server.log 2>&1 &)
+          for i in $(seq 1 60); do curl -sf http://localhost:3100/api/ready && break; sleep 1; done
+          BASE_URL=http://localhost:3100 npm run security:probe
