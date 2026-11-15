@@ -99,6 +99,13 @@
       "when": 1792374600000,
       "tag": "0021_selection",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1792375200000,
+      "tag": "0022_judges",
+      "breakpoints": true
     }
   ]
 }

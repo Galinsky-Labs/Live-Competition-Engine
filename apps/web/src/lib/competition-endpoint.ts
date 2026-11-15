@@ -20,6 +20,17 @@ export interface EndpointContext<P extends ScopeParams> {
   url: URL;
 }
 
+/** Codes whose default mapping (400/404/409) is not the right HTTP meaning. */
+const statusByCode: Record<string, number> = {
+  invitation_email_mismatch: 403,
+  judge_recused: 403,
+  judge_not_verified: 403,
+  judge_inactive: 403,
+  self_approval_forbidden: 403,
+  invitation_expired: 410,
+  invitation_revoked: 410
+};
+
 export function endpoint<P extends ScopeParams>(
   authorizer: EndpointAuthorizer,
   access: Access,
@@ -47,7 +58,7 @@ export function endpoint<P extends ScopeParams>(
       const status = typeof options.status === "function" ? options.status(result) : options.status ?? 200;
       return json(result, status);
     } catch (error) {
-      return domainFailure(error);
+      return domainFailure(error, statusByCode);
     }
   };
 }
