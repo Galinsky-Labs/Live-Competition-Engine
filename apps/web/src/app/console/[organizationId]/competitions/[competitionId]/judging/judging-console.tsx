@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ConsoleApiError } from "../../../../../../lib/console-client";
 import { StatusLine, useConsole } from "../use-console";
 import styles from "../console.module.css";
+import { ScorePanel } from "./score-panel";
 
 interface Performance { performanceId: string; entryId: string; displayName: string; ordinal: number; status: string; recused: boolean; }
 interface Assignments { status: string; rounds: { roundId: string; label: string; ordinal: number; status: string; panelRole: string; performances: Performance[] }[]; }
@@ -13,6 +14,7 @@ export function JudgingConsole({ organizationId, competitionId }: { organization
   const [assignments, setAssignments] = useState<Assignments | null>(null);
   const [notJudge, setNotJudge] = useState(false);
   const [token, setToken] = useState("");
+  const [open, setOpen] = useState<{ roundId: string; performanceId: string; name: string } | null>(null);
   const [conflict, setConflict] = useState<{ entryId: string; name: string; reason: string } | null>(null);
 
   const load = useCallback(async () => {
@@ -57,6 +59,10 @@ export function JudgingConsole({ organizationId, competitionId }: { organization
                     <span>{p.displayName} ({p.status}){p.recused ? " — recused" : ""}</span>
                     {!p.recused ? (
                       <>
+                        <button type="button" disabled={busy} aria-pressed={open?.performanceId === p.performanceId}
+                          onClick={() => setOpen({ roundId: round.roundId, performanceId: p.performanceId, name: p.displayName })}>
+                          Open {p.displayName}
+                        </button>
                         <button type="button" disabled={busy} onClick={() => setConflict({ entryId: p.entryId, name: p.displayName, reason: "" })}>
                           Declare a conflict with {p.displayName}
                         </button>
@@ -68,6 +74,9 @@ export function JudgingConsole({ organizationId, competitionId }: { organization
             </div>
           ))}
         </section>
+      ) : null}
+      {open ? (
+        <ScorePanel key={open.performanceId} api={api} run={run} busy={busy} roundId={open.roundId} performanceId={open.performanceId} name={open.name} />
       ) : null}
       {conflict ? (
         <form className={styles.panel} aria-labelledby="conflict-title" onSubmit={event => {
