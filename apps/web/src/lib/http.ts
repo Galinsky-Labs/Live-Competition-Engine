@@ -91,7 +91,12 @@ export function toErrorResponse(error: unknown): Response {
   if (error && typeof error === "object" && "status" in error && "code" in error &&
       typeof (error as { status: unknown }).status === "number" && typeof (error as { code: unknown }).code === "string") {
     const status = (error as { status: number }).status;
-    if (status >= 400 && status < 500) return errorResponse(status, (error as { code: string }).code);
+    const extra: Record<string, unknown> = {};
+    for (const key of ["issues", "blockers"] as const) {
+      const value = (error as Record<string, unknown>)[key];
+      if (Array.isArray(value)) extra[key] = value.filter(v => typeof v === "string").slice(0, 20);
+    }
+    if (status >= 400 && status < 500) return errorResponse(status, (error as { code: string }).code, extra);
   }
   if (error && typeof error === "object" && "issues" in error) return errorResponse(400, "invalid_request");
   console.error(error);
