@@ -8,3 +8,5 @@ coverage
 .DS_Store
 *.log
 apps/web/tsconfig.tsbuildinfo
+package-lock.json
+.claude/worktrees/

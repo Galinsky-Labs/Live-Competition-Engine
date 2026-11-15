@@ -1,0 +1,38 @@
+# Render Blueprint for the Live Competition Engine web service.
+# Database: Neon PostgreSQL (DATABASE_URL set in the Render dashboard / API, never committed).
+services:
+  - type: web
+    name: live-competition-engine
+    runtime: node
+    plan: free
+    region: ohio
+    branch: main
+    buildCommand: npm install --include=dev && npm run build
+    # Migrations run before the server starts; drizzle-kit applies only pending migrations.
+    startCommand: npm run db:migrate && npm run start -w @live-competition-engine/web
+    healthCheckPath: /api/ready
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: JOB_WORKER_SECRET
+        generateValue: true
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: MUX_TOKEN_ID
+        sync: false
+      - key: MUX_TOKEN_SECRET
+        sync: false
+      - key: MUX_WEBHOOK_SECRET
+        sync: false
+      - key: POSTMARK_SERVER_TOKEN
+        sync: false
+      - key: EMAIL_FROM_DEFAULT
+        sync: false
