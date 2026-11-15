@@ -11,11 +11,21 @@ export async function requireEnabledFeature(
   feature: FeatureKey,
   context: { organizationId: string; eventId?: string; accountId?: string }
 ): Promise<void> {
-  const decision = await evaluateStoredFeature(feature, {
-    organizationId: context.organizationId,
-    ...(context.eventId ? { eventId: context.eventId } : {}),
-    ...(context.accountId ? { accountId: context.accountId } : {})
-  });
+  let decision;
+  try {
+    decision = await evaluateStoredFeature(feature, {
+      organizationId: context.organizationId,
+      ...(context.eventId ? { eventId: context.eventId } : {}),
+      ...(context.accountId ? { accountId: context.accountId } : {})
+    });
+  } catch (error) {
+    // An event or account outside the tenant (or a malformed id) is a scope violation,
+    // not a server fault: surface it as 403 rather than 500.
+    if (error instanceof Error && /scope denied|Invalid feature context/.test(error.message)) {
+      throw new DomainError("forbidden");
+    }
+    throw error;
+  }
   if (!decision.enabled) throw new DomainError("feature_disabled");
 }
 
