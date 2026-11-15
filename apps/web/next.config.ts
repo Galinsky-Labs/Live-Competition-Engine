@@ -5,7 +5,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   transpilePackages: [
     "@live-competition-engine/config",
-    "@live-competition-engine/db"
+    "@live-competition-engine/db",
+    "@live-competition-engine/auth"
   ]
 };
 

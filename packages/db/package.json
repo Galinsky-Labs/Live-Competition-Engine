@@ -5,12 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./auth-store": "./src/auth-store.ts",
-    "./schema": "./src/schema.ts",
-    "./tenant-theme": "./src/tenant-theme.ts",
-    "./tenant-brand-assets": "./src/tenant-brand-assets.ts",
-    "./tenant-domains": "./src/tenant-domains.ts",
-    "./feature-flags": "./src/feature-flags.ts"
+    "./*": "./src/*.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
