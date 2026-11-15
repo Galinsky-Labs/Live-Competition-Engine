@@ -64,6 +64,13 @@
       "when": 1792371600000,
       "tag": "0008_feature_flags",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792372200000,
+      "tag": "0009_entitlements",
+      "breakpoints": true
     }
   ]
 }

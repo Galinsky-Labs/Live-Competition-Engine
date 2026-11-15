@@ -286,3 +286,37 @@ export const featureDecisionAudit = pgTable("feature_decision_audit", {
     foreignColumns: [competitions.organizationId, competitions.id],
     name: "feature_decision_audit_event_tenant_fk" })
 ]);
+
+export const entitlementGrants = pgTable("entitlement_grants", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  version: integer("version").notNull().default(1),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  accountId: uuid("account_id").notNull().references(() => accounts.id),
+  eventId: uuid("event_id"),
+  capability: text("capability").notNull(),
+  source: text("source").notNull(),
+  status: text("status").notNull(),
+  startsAt: bigint("starts_at", { mode: "number" }).notNull(),
+  expiresAt: bigint("expires_at", { mode: "number" })
+}, (t) => [
+  index("entitlement_grants_subject_idx").on(t.organizationId, t.accountId),
+  foreignKey({ columns: [t.organizationId, t.eventId], foreignColumns: [competitions.organizationId, competitions.id] }),
+  foreignKey({ columns: [t.organizationId, t.accountId], foreignColumns: [organizationMemberships.organizationId, organizationMemberships.accountId] })
+]);
+
+export const entitlementDecisions = pgTable("entitlement_decisions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id").notNull().references(() => organizations.id),
+  accountId: uuid("account_id").notNull().references(() => accounts.id),
+  eventId: uuid("event_id"),
+  capability: text("capability").notNull(),
+  allowed: boolean("allowed").notNull(),
+  reason: text("reason").notNull(),
+  evaluatedAt: bigint("evaluated_at", { mode: "number" }).notNull(),
+  grantId: uuid("grant_id").references(() => entitlementGrants.id),
+  grantVersion: integer("grant_version"),
+  recordedAt: timestamp("recorded_at", { withTimezone: true }).notNull().defaultNow()
+}, (t) => [
+  index("entitlement_decisions_subject_idx").on(t.organizationId, t.accountId, t.recordedAt),
+  foreignKey({ columns: [t.organizationId, t.eventId], foreignColumns: [competitions.organizationId, competitions.id] })
+]);
