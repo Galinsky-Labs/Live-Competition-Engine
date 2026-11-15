@@ -120,6 +120,13 @@
       "when": 1792376400000,
       "tag": "0064_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792377000000,
+      "tag": "0065_white_label_email",
+      "breakpoints": true
     }
   ]
 }

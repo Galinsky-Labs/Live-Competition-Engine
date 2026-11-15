@@ -1,4 +1,6 @@
+import { parseServerEnv } from "@live-competition-engine/config";
 import { parseProviderEnv, requirePostmark } from "@live-competition-engine/config/providers";
+import { createBrandedEmailComposer } from "@live-competition-engine/db/white-label-email";
 import { runDueScheduledPublications } from "@live-competition-engine/db/cms";
 import { runJobs } from "@live-competition-engine/db/jobs";
 import * as notifications from "@live-competition-engine/db/notifications";
@@ -33,13 +35,10 @@ export function emailProvider(): EmailProvider {
 
 let composer: notifications.EmailComposer | undefined;
 
-/** Overridable so LC-52 can install the tenant-branded composer. */
-export function setNotificationEmailComposer(next: notifications.EmailComposer): void {
-  composer = next;
-}
-
+/** LC-52: tenant-branded composer (tenant sender, templates, one-click unsubscribe, source trace). */
 export function notificationEmailComposer(): notifications.EmailComposer {
-  return composer ?? notifications.createPlainEmailComposer(providerEnv().EMAIL_FROM_DEFAULT);
+  composer ??= createBrandedEmailComposer({ appUrl: parseServerEnv().APP_URL, defaultFrom: providerEnv().EMAIL_FROM_DEFAULT });
+  return composer;
 }
 
 export const notificationService: NotificationService = {

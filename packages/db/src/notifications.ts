@@ -331,6 +331,14 @@ export async function applyProviderEvent(event: ProviderEvent): Promise<{ action
       ? await tx<{ id: string; organization_id: string; to_email: string }[]>`
           SELECT id, organization_id, to_email FROM email_messages WHERE provider_message_id = ${event.messageId} FOR UPDATE`
       : [];
+    if (message && event.messageId) {
+      // LC-52 deliverability tracking: every provider event for a known message is kept.
+      await tx`
+        INSERT INTO email_delivery_events (organization_id, email_message_id, provider_message_id, record_type, detail_type, occurred_at)
+        VALUES (${message.organization_id}, ${message.id}, ${event.messageId}, ${event.recordType.slice(0, 60)},
+          ${event.type ? event.type.slice(0, 60) : null}, ${event.occurredAt})
+      `;
+    }
     const target = event.email ?? message?.to_email ?? null;
     if (event.recordType === "SpamComplaint" || (event.recordType === "Bounce" && (event.inactive || HARD_BOUNCE_TYPES.has(event.type ?? "")))) {
       if (target) await suppressEmail(target, event.recordType === "SpamComplaint" ? "spam_complaint" : "hard_bounce", event.messageId, tx);

@@ -6,6 +6,7 @@ const sections = [
   ["members", "Members"],
   ["venues", "Venues"],
   ["moderation", "Moderation"],
+  ["email", "Email"],
   ["features", "Features"]
 ] as const;
 
