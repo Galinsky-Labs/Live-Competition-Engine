@@ -27,8 +27,10 @@ export function parseProviderEnv(source: NodeJS.ProcessEnv = process.env): Provi
 
 export class ProviderNotConfiguredError extends Error {
   readonly code = "provider_not_configured";
-  constructor(readonly provider: string) {
+  readonly provider: string;
+  constructor(provider: string) {
     super(`${provider} is not configured`);
+    this.provider = provider;
   }
 }
 
