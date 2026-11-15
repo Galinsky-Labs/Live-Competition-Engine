@@ -9,7 +9,7 @@ export interface EntitlementGrant {
   accountId: string;
   eventId: string | null;
   capability: EntitlementCapability;
-  source: "ticket" | "subscription" | "staff" | "manual";
+  source: "ticket" | "subscription" | "staff" | "manual" | "purchase";
   status: "active" | "pending" | "refunded" | "revoked";
   startsAt: number;
   expiresAt: number | null;
@@ -71,7 +71,7 @@ export class EntitlementService {
         grant.organizationId !== organizationId || grant.accountId !== accountId ||
         (grant.eventId !== null && !identifier(grant.eventId)) ||
         !entitlementCapabilities.includes(grant.capability) ||
-        !["ticket", "subscription", "staff", "manual"].includes(grant.source) ||
+        !["ticket", "subscription", "staff", "manual", "purchase"].includes(grant.source) ||
         !["active", "pending", "refunded", "revoked"].includes(grant.status) ||
         !validTime(grant.startsAt) ||
         (grant.expiresAt !== null && (!validTime(grant.expiresAt) || grant.expiresAt <= grant.startsAt)) ||
@@ -84,6 +84,8 @@ export class EntitlementService {
     }
     const matches = grants.filter(grant =>
       grant.capability === capability && grant.status === "active" &&
+      // Purchase grants are item-scoped (see entitlement_grant_sources); never tenant-wide.
+      grant.source !== "purchase" &&
       grant.startsAt <= now && (grant.expiresAt === null || now < grant.expiresAt) &&
       (grant.eventId === null || grant.eventId === eventId)
     ).sort((a, b) => a.id.localeCompare(b.id));

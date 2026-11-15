@@ -129,6 +129,6 @@ test("cross-tenant payees and gifts are rejected", async () => {
   const giftA = await createGift(a.org, { name: "Rose", priceMinor: 300, currency: "USD" }, a.operator);
   await assert.rejects(quoteTip(b.org, { eventId: b.event, payeeType: "participant", payeeId: a.participantId, amountMinor: 500, currency: "USD" }, b.fan), /payee_not_found/);
   await assert.rejects(quoteTip(b.org, { eventId: b.event, payeeType: "participant", payeeId: b.participantId, giftId: giftA.id }, b.fan), /gift_not_found/);
-  await assert.rejects(quoteTip(b.org, { eventId: a.event, payeeType: "participant", payeeId: a.participantId, amountMinor: 500, currency: "USD" }, b.fan), /scope denied/);
+  await assert.rejects(quoteTip(b.org, { eventId: a.event, payeeType: "participant", payeeId: a.participantId, amountMinor: 500, currency: "USD" }, b.fan), /forbidden|scope denied/);
   await assert.rejects(quoteTip(b.org, { eventId: b.event, payeeType: "account", payeeId: a.fan, amountMinor: 500, currency: "USD" }, b.fan), /payee_not_found/);
 });

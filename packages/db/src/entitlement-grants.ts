@@ -16,7 +16,7 @@ export interface IssueGrantInput {
   accountId: string;
   eventId: string | null;
   capability: EntitlementCapability;
-  source: "ticket" | "subscription" | "manual";
+  source: "ticket" | "subscription" | "manual" | "purchase";
   startsAt: number;
   expiresAt: number | null;
   sourceKind: GrantSourceKind;

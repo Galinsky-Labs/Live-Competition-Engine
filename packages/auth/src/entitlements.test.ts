@@ -66,3 +66,11 @@ test("audit evidence is immutable and storage/audit failures propagate", async (
   const brokenAudit = new EntitlementService({ listGrants: async () => [base] }, { record: async () => { throw new Error("audit offline"); } });
   await assert.rejects(() => brokenAudit.require(principal, request, 150), /audit offline/);
 });
+
+test("item-scoped purchase grants never satisfy a generic tenant-wide check", async () => {
+  const purchase = { ...base, source: "purchase" as const, capability: "content.view" as const, eventId: null, expiresAt: null };
+  const result = await service([purchase]).resolve(principal, { organizationId, capability: "content.view" }, 150);
+  assert.equal(result.allowed, false);
+  const subscription = { ...purchase, source: "subscription" as const, id: otherId };
+  assert.equal((await service([purchase, subscription]).resolve(principal, { organizationId, capability: "content.view" }, 150)).grantId, otherId);
+});

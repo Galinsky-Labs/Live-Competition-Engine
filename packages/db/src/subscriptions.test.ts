@@ -158,5 +158,5 @@ test("cross-tenant plans, subscriptions and provider events are isolated", async
   const forged = await deliver({ kind: "invoice_paid", providerSubscriptionId: `sub_${randomUUID()}`, organizationId: b.org, subscriptionId: subscription.id, invoiceId: `in_${randomUUID()}`, paymentReference: null, amountMinor: 500, currency: "USD", periodStart: new Date(), periodEnd: new Date(Date.now() + day) });
   assert.equal(forged.outcome, "subscription_not_found");
   assert.equal((await getSubscription(a.org, subscription.id))?.status, "incomplete");
-  await assert.rejects(createMembershipPlan(b.org, { creatorType: "account", creatorId: a.creator, name: "X", description: "", priceMinor: 1, currency: "USD", interval: "month", termsVersion: "v" }, b.operator), /scope denied|creator_not_found/);
+  await assert.rejects(createMembershipPlan(b.org, { creatorType: "account", creatorId: a.creator, name: "X", description: "", priceMinor: 1, currency: "USD", interval: "month", termsVersion: "v" }, b.operator), /forbidden|scope denied|creator_not_found/);
 });

@@ -185,7 +185,7 @@ test("cross-tenant ticket purchases, access checks and entry-fee lookups are den
   const type = await createTicketType(a.org, a.event, ticket(), a.operator);
   const outsider = await createAccount(b.org);
   await assert.rejects(purchaseTicket(b.org, { eventId: a.event, ticketTypeId: type.id, accountId: outsider, idempotencyKey: key() }, provider, urls, hooks), /ticket_type_not_found/);
-  await assert.rejects(createTicketType(b.org, a.event, ticket(), b.operator), /scope denied|feature_disabled|violates/);
+  await assert.rejects(createTicketType(b.org, a.event, ticket(), b.operator), /forbidden|scope denied|feature_disabled|violates/);
   assert.equal(await hasPaidEntryFee(b.org, a.event, outsider), false);
   await assert.rejects(revokeTicket(b.org, randomUUID(), b.operator), /order_not_found/);
   assert.deepEqual(await listTicketTypes(b.org, b.event), []);

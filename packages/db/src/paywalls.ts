@@ -241,9 +241,9 @@ export async function purchaseContent(
 export const contentHooks: PaymentHooks = {
   async onSucceeded(tx, order) {
     if (order.purpose !== "content") return;
-    // LC-09 has no "purchase" source; provenance (payment_order) is recorded in entitlement_grant_sources.
+    // Item-scoped: the generic LC-09 resolver ignores "purchase" grants; provenance is in entitlement_grant_sources.
     await issueGrant(tx, {
-      organizationId: order.organizationId, accountId: order.accountId, eventId: null, capability: "content.view", source: "manual",
+      organizationId: order.organizationId, accountId: order.accountId, eventId: null, capability: "content.view", source: "purchase",
       startsAt: Date.now(), expiresAt: null, sourceKind: "payment_order", sourceId: order.id
     });
   },
