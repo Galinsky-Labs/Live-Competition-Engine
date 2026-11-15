@@ -13,7 +13,8 @@ export const providerEnvSchema = z.object({
   MUX_WEBHOOK_SECRET: z.string().min(1).optional(),
   POSTMARK_SERVER_TOKEN: z.string().min(1).optional(),
   EMAIL_FROM_DEFAULT: z.string().email().optional(),
-  JOB_WORKER_SECRET: z.string().min(32).optional()
+  JOB_WORKER_SECRET: z.string().min(32).optional(),
+  SIGNUP_IP_HASH_KEY: z.string().min(32).optional()
 });
 
 export type ProviderEnv = z.infer<typeof providerEnvSchema>;

@@ -142,11 +142,15 @@ export function createPostgresAuthStore(): AuthStore {
       const [row] = await sql<{ exists: boolean }[]>`
         SELECT EXISTS (
           SELECT 1
-          FROM organization_memberships
-          WHERE account_id = ${accountId}
-            AND organization_id = ${organizationId}
-            AND status = 'active'
-            AND suspended_at IS NULL
+          FROM organization_memberships m
+          JOIN organizations o ON o.id = m.organization_id
+          WHERE m.account_id = ${accountId}
+            AND m.organization_id = ${organizationId}
+            AND m.status = 'active'
+            AND m.suspended_at IS NULL
+            -- LC-53: a suspended, scheduled-for-deletion or deleted tenant fails closed
+            -- for every tenant-scoped API because membership is no longer active.
+            AND o.status = 'active'
         ) AS exists
       `;
       return row?.exists === true;

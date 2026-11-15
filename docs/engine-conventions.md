@@ -83,3 +83,9 @@ use random IDs and never truncate shared tables.
 
 Provider credentials are declared in `packages/config/src/providers.ts` (all optional). Use
 `requireStripe()`, `requireMux()`, `requirePostmark()`; they throw `provider_not_configured`.
+
+## Tenant lifecycle
+
+`AuthStore.hasActiveMembership` (Postgres) requires `organizations.status = 'active'`, so a
+suspended or deletion-scheduled tenant (LC-53) fails closed on every authenticated tenant API.
+Platform-scope routes (`platform.manage`, no organization) keep working for super-admins.

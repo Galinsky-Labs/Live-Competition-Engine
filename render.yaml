@@ -22,6 +22,8 @@ services:
         sync: false
       - key: JOB_WORKER_SECRET
         generateValue: true
+      - key: SIGNUP_IP_HASH_KEY
+        generateValue: true
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
