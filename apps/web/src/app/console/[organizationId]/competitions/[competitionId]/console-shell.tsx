@@ -7,7 +7,8 @@ const sections = [
   ["selection", "Selection"],
   ["judges", "Judges"],
   ["judging", "Judging"],
-  ["moderation", "Scores and critiques"]
+  ["moderation", "Scores and critiques"],
+  ["feedback", "My feedback"]
 ] as const;
 
 /**

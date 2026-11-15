@@ -72,7 +72,13 @@ function expectRevision(value: unknown): number {
 }
 
 async function feature(organizationId: string, competitionId: string, accountId: string): Promise<void> {
-  await requireEnabledFeature("applications", { organizationId, eventId: competitionId, accountId });
+  try {
+    await requireEnabledFeature("applications", { organizationId, eventId: competitionId, accountId });
+  } catch (error) {
+    // The flag store refuses scopes outside the tenant (non-member account, foreign event): fail closed as 403.
+    if (error instanceof Error && !(error instanceof DomainError) && /scope denied/.test(error.message)) throw new DomainError("forbidden");
+    throw error;
+  }
 }
 
 async function loadForm(tx: Sql, organizationId: string, competitionId: string, lock = false): Promise<FormRow> {

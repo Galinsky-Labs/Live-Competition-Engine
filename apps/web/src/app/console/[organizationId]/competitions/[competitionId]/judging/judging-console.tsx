@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ConsoleApiError } from "../../../../../../lib/console-client";
 import { StatusLine, useConsole } from "../use-console";
 import styles from "../console.module.css";
+import { CritiquePanel } from "./critique-panel";
 import { ScorePanel } from "./score-panel";
 
 interface Performance { performanceId: string; entryId: string; displayName: string; ordinal: number; status: string; recused: boolean; }
@@ -76,7 +77,10 @@ export function JudgingConsole({ organizationId, competitionId }: { organization
         </section>
       ) : null}
       {open ? (
-        <ScorePanel key={open.performanceId} api={api} run={run} busy={busy} roundId={open.roundId} performanceId={open.performanceId} name={open.name} />
+        <>
+          <ScorePanel key={`s-${open.performanceId}`} api={api} run={run} busy={busy} roundId={open.roundId} performanceId={open.performanceId} name={open.name} />
+          <CritiquePanel key={`c-${open.performanceId}`} api={api} run={run} busy={busy} roundId={open.roundId} performanceId={open.performanceId} name={open.name} />
+        </>
       ) : null}
       {conflict ? (
         <form className={styles.panel} aria-labelledby="conflict-title" onSubmit={event => {
