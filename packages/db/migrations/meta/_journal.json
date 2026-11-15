@@ -92,6 +92,13 @@
       "when": 1792374000000,
       "tag": "0030_streaming",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1792374600000,
+      "tag": "0031_backstage",
+      "breakpoints": true
     }
   ]
 }
