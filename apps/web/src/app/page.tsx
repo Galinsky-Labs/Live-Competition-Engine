@@ -7,6 +7,7 @@ export default function HomePage() {
         This repository provides the reusable competition engine. Product-specific
         vocabulary, branding, and rules belong in implementations built on top of it.
       </p>
+      <p><a href="/signup">Create an account</a> or <a href="/login">sign in</a> to run an organization and its events.</p>
       <section className="status" aria-label="Foundation status">
         <span>Foundation</span>
         <strong>online</strong>

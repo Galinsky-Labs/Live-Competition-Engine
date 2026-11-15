@@ -61,3 +61,32 @@ h1 {
 .status strong {
   color: #fff;
 }
+
+/* Shared application UI */
+a { color: #9ecbff; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: 1rem; top: 1rem; background: #000; padding: 0.5rem; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid #262626; }
+.topbar nav { display: flex; gap: 1rem; align-items: center; }
+.brand { font-weight: 800; color: #f5f5f5; text-decoration: none; }
+.shell.narrow { width: min(28rem, calc(100% - 2rem)); padding: 4rem 0; }
+main.shell { padding-top: 3rem; }
+.form { display: grid; gap: 0.9rem; margin: 1rem 0; }
+.form label { display: grid; gap: 0.3rem; }
+.form label.check { grid-template-columns: auto 1fr; align-items: center; }
+.form small { color: #a3a3a3; }
+input, select, textarea { font: inherit; padding: 0.55rem 0.7rem; border-radius: 0.4rem; border: 1px solid #404040; background: #141414; color: inherit; }
+button { font: inherit; padding: 0.55rem 1rem; border-radius: 0.4rem; border: 1px solid #5b5b5b; background: #f5f5f5; color: #0a0a0a; cursor: pointer; font-weight: 700; }
+button:disabled { opacity: 0.6; cursor: progress; }
+button.link { background: none; border: none; color: #9ecbff; padding: 0; font-weight: 400; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #ffd166; outline-offset: 2px; }
+.error { color: #ff8a8a; }
+.card { border: 1px solid #262626; border-radius: 0.75rem; padding: 1rem 1.25rem; margin: 1.5rem 0; background: #111; }
+.list { list-style: none; padding: 0; display: grid; gap: 0.5rem; }
+.list small, .muted { color: #a3a3a3; }
+.grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid #262626; }
+.badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; border: 1px solid #404040; font-size: 0.8rem; }
+.action { display: inline-flex; gap: 0.4rem; align-items: center; margin-right: 0.5rem; }
+.big-clock { font-size: clamp(3rem, 12vw, 9rem); font-variant-numeric: tabular-nums; font-weight: 800; }
