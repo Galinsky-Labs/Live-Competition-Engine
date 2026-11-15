@@ -24,7 +24,7 @@ schemes render as plain text. External links get `rel="nofollow noopener norefer
 
 `createPage`, `updateDraft` (expectedRevision), `publishPage` (expectedDraftRevision), `rollbackPage`
 (publishes an older version's content as a new version), `schedulePublish`, `cancelScheduledPublish`,
-`runDueScheduledPublications` (worker; `FOR UPDATE SKIP LOCKED`; registered as the `cms.publish_due` job in LC-47),
+`runDueScheduledPublications` (worker; `FOR UPDATE SKIP LOCKED`; run on every `/api/jobs/run` tick, LC-47),
 `setNavigation` (atomic replace), `listNavigation`, `listPages`, `getPageForEditing`, `getPublishedPage`.
 
 * Writes call `requireEnabledFeature("cms")` before side effects. Public reads return nothing when `cms` is off.
