@@ -22,7 +22,8 @@
     "./organizations": "./src/organizations.ts",
     "./events": "./src/events.ts",
     "./stages": "./src/stages.ts",
-    "./registration": "./src/registration.ts"
+    "./registration": "./src/registration.ts",
+    "./judging": "./src/judging.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
