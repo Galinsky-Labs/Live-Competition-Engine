@@ -52,13 +52,13 @@ const ids = (...values: string[]) => {
   if (!values.every(isUuid)) throw new DomainError("not_found");
 };
 
-async function ensureCompetition(sql: Sql, organizationId: string, competitionId: string): Promise<void> {
+export async function ensureCompetition(sql: Sql, organizationId: string, competitionId: string): Promise<void> {
   ids(organizationId, competitionId);
   const rows = await sql`SELECT 1 FROM competitions WHERE organization_id = ${organizationId} AND id = ${competitionId}`;
   if (rows.length !== 1) throw new DomainError("competition_not_found");
 }
 
-async function ensureActiveMember(sql: Sql, organizationId: string, accountId: string): Promise<void> {
+export async function ensureActiveMember(sql: Sql, organizationId: string, accountId: string): Promise<void> {
   ids(accountId);
   const rows = await sql`
     SELECT 1 FROM organization_memberships
@@ -167,7 +167,7 @@ export async function acceptAudienceTerms(
 }
 
 /** Inside a write transaction: settings exist and the account accepted the current terms. */
-async function requireConsent(tx: Sql, organizationId: string, competitionId: string, accountId: string) {
+export async function requireAudienceConsent(tx: Sql, organizationId: string, competitionId: string, accountId: string) {
   const [row] = await tx<(Parameters<typeof mapSettings>[0] & { consented: boolean })[]>`
     SELECT s.competition_id, s.terms_version, s.slow_mode_seconds, s.chat_max_length, s.revision, s.updated_at,
       EXISTS (
@@ -214,7 +214,7 @@ export async function addReaction(
       SELECT 1 FROM performances WHERE organization_id = ${organizationId} AND competition_id = ${competitionId} AND id = ${performanceId}
     `;
     if (performance.length !== 1) throw new DomainError("performance_not_found");
-    await requireConsent(tx, organizationId, competitionId, accountId);
+    await requireAudienceConsent(tx, organizationId, competitionId, accountId);
     await consumeRateLimit(tx, { organizationId, accountId, action: "audience.reaction" }, audienceRateLimits.reaction, now);
     await tx`
       INSERT INTO audience_reaction_counts (organization_id, competition_id, performance_id, kind, count, updated_at)
@@ -270,7 +270,7 @@ export async function postChatMessage(
 ): Promise<ChatMessage> {
   await participantPreflight("chat", organizationId, competitionId, accountId);
   return getSqlClient().begin(async tx => {
-    const settings = await requireConsent(tx, organizationId, competitionId, accountId);
+    const settings = await requireAudienceConsent(tx, organizationId, competitionId, accountId);
     const body = normalizeChatBody(rawBody, settings.chatMaxLength);
     await assertNotMuted(tx, organizationId, competitionId, accountId, now);
     if (findBlockedTerm(body, await activeTerms(tx, organizationId))) throw new DomainError("message_blocked");
@@ -465,7 +465,7 @@ export async function submitQuestion(
   const body = normalizeQuestionBody(rawBody);
   await participantPreflight("questions", organizationId, competitionId, accountId);
   return getSqlClient().begin(async tx => {
-    await requireConsent(tx, organizationId, competitionId, accountId);
+    await requireAudienceConsent(tx, organizationId, competitionId, accountId);
     await assertNotMuted(tx, organizationId, competitionId, accountId, now);
     if (findBlockedTerm(body, await activeTerms(tx, organizationId))) throw new DomainError("message_blocked");
     await consumeRateLimit(tx, { organizationId, accountId, action: "audience.question" }, audienceRateLimits.question, now);
@@ -488,7 +488,7 @@ export async function upvoteQuestion(
   ids(questionId);
   await participantPreflight("questions", organizationId, competitionId, accountId);
   return getSqlClient().begin(async tx => {
-    await requireConsent(tx, organizationId, competitionId, accountId);
+    await requireAudienceConsent(tx, organizationId, competitionId, accountId);
     const [question] = await tx<{ status: QuestionStatus; upvote_count: number }[]>`
       SELECT status, upvote_count FROM audience_questions
       WHERE organization_id = ${organizationId} AND competition_id = ${competitionId} AND id = ${questionId}
@@ -653,7 +653,7 @@ export async function votePoll(
   if (!isUuid(optionId)) throw new DomainError("invalid_option");
   await participantPreflight("polls", organizationId, competitionId, accountId);
   return getSqlClient().begin(async tx => {
-    await requireConsent(tx, organizationId, competitionId, accountId);
+    await requireAudienceConsent(tx, organizationId, competitionId, accountId);
     const [poll] = await tx<{ status: PollStatus; closes_at: Date | null }[]>`
       SELECT status, closes_at FROM audience_polls
       WHERE organization_id = ${organizationId} AND competition_id = ${competitionId} AND id = ${pollId}
