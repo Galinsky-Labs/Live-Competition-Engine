@@ -29,6 +29,41 @@ export function isUniqueViolation(error: unknown, constraint?: string): boolean 
   return e?.code === "23505" && (constraint === undefined || e.constraint_name === constraint);
 }
 
+export interface ShowControlRow {
+  state: "standby" | "running" | "paused" | "ended";
+  pause_reason: string | null;
+  current_performance_id: string | null;
+  revision: number;
+  broadcast_sequence: string;
+  updated_at: Date;
+}
+
+/**
+ * Lock (creating if needed) the competition's show-control row. Lock order for all
+ * live-production writes is: show_controls -> stage_timers, which prevents deadlocks
+ * between the safety stop and concurrent timer commands.
+ */
+export async function lockShowControl(tx: Sql, organizationId: string, competitionId: string): Promise<ShowControlRow> {
+  await tx`INSERT INTO show_controls (organization_id, competition_id) VALUES (${organizationId}, ${competitionId})
+    ON CONFLICT DO NOTHING`;
+  const [row] = await tx<ShowControlRow[]>`
+    SELECT state, pause_reason, current_performance_id, revision, broadcast_sequence::text, updated_at
+    FROM show_controls WHERE organization_id = ${organizationId} AND competition_id = ${competitionId} FOR UPDATE
+  `;
+  return row!;
+}
+
+/** Advance the monotonic sequence public overlays use to discard stale updates. Caller holds the show lock. */
+export async function bumpBroadcastSequence(tx: Sql, organizationId: string, competitionId: string): Promise<number> {
+  const [row] = await tx<{ broadcast_sequence: string }[]>`
+    UPDATE show_controls SET broadcast_sequence = broadcast_sequence + 1
+    WHERE organization_id = ${organizationId} AND competition_id = ${competitionId}
+    RETURNING broadcast_sequence::text
+  `;
+  if (!row) throw new DomainError("show_control_not_found");
+  return Number(row.broadcast_sequence);
+}
+
 /** Serialize writers of one competition-scoped channel for the rest of the transaction. */
 export async function lockChannel(tx: Sql, channel: string, organizationId: string, competitionId: string): Promise<void> {
   await tx`SELECT pg_advisory_xact_lock(hashtextextended(${`${channel}:${organizationId}:${competitionId}`}, 0))`;

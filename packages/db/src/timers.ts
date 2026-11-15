@@ -12,7 +12,7 @@ import {
 } from "@live-competition-engine/domain/timer";
 import { getSqlClient } from "./index.ts";
 import { recordAudit, type Sql } from "./audit.ts";
-import { assertCompetitionInTenant, isUniqueViolation } from "./live-common.ts";
+import { assertCompetitionInTenant, bumpBroadcastSequence, isUniqueViolation, lockShowControl } from "./live-common.ts";
 import { assertIdempotencyKey } from "./streams.ts";
 
 export interface TimerView extends TimerSnapshot {
@@ -82,6 +82,7 @@ export async function createTimer(
   try {
     return await getSqlClient().begin(async tx => {
       await assertCompetitionInTenant(tx, organizationId, competitionId);
+      await lockShowControl(tx, organizationId, competitionId);
       if (input.performanceId) {
         const [performance] = await tx`SELECT 1 FROM performances WHERE organization_id = ${organizationId}
           AND competition_id = ${competitionId} AND id = ${input.performanceId}`;
@@ -97,6 +98,7 @@ export async function createTimer(
         organizationId, actorAccountId, action: "timer.created", subjectType: "stage_timer", subjectId: timer!.id,
         details: { competitionId, performanceId: input.performanceId ?? null, durationMs: config.durationMs, maxExtensionMs: config.maxExtensionMs }
       });
+      await bumpBroadcastSequence(tx, organizationId, competitionId);
       return toView(timer!, replayTimer(config, []), Date.now());
     });
   } catch (error) {
@@ -118,7 +120,9 @@ export interface TimerCommandInput {
 /**
  * Append a command inside an existing transaction. The timer row is locked
  * (FOR UPDATE) so concurrent producers are serialized; the command's time is the
- * server clock, clamped to be monotonic. Exposed for the control room safety stop.
+ * server clock, clamped to be monotonic. The caller MUST already hold the
+ * competition's show-control lock (`lockShowControl`), see lock ordering there.
+ * Exposed for the control room safety stop.
  */
 export async function appendTimerCommandTx(
   tx: Sql,
@@ -152,6 +156,7 @@ export async function appendTimerCommandTx(
       ${input.reason ?? null}, ${next.lastAt}, ${actorAccountId}, ${input.idempotencyKey})
   `;
   await tx`UPDATE stage_timers SET head_sequence = ${next.sequence}, updated_at = now() WHERE id = ${timerId}`;
+  await bumpBroadcastSequence(tx, organizationId, timer.competition_id);
   await recordAudit(tx, {
     organizationId, actorAccountId, action: `timer.${input.type}`, subjectType: "stage_timer", subjectId: timerId,
     details: {
@@ -176,7 +181,11 @@ export async function issueTimerCommand(
   if (input.expectedSequence !== undefined && (!Number.isSafeInteger(input.expectedSequence) || input.expectedSequence < 0)) {
     throw new DomainError("invalid_expected_sequence");
   }
-  return getSqlClient().begin(tx => appendTimerCommandTx(tx, organizationId, timerId, actorAccountId, input, clock));
+  return getSqlClient().begin(async tx => {
+    const timer = await loadTimer(tx, organizationId, timerId, false);
+    await lockShowControl(tx, organizationId, timer.competition_id);
+    return appendTimerCommandTx(tx, organizationId, timerId, actorAccountId, input, clock);
+  });
 }
 
 export async function getTimer(organizationId: string, timerId: string, clock: Clock = systemClock): Promise<TimerView> {

@@ -1,0 +1,159 @@
+.main {
+  width: min(90rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+
+.title {
+  max-width: none;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  gap: 1rem;
+}
+
+.panel {
+  border: 1px solid #333;
+  padding: 1rem;
+  background: #111;
+}
+
+.panel label {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+.panel input,
+.panel select {
+  width: 100%;
+  padding: 0.4rem;
+  background: #000;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+.panel button {
+  margin: 0.25rem 0.25rem 0.25rem 0;
+  padding: 0.35rem 0.7rem;
+  background: #222;
+  color: #fff;
+  border: 1px solid #666;
+  cursor: pointer;
+}
+
+.panel button:focus-visible,
+.panel input:focus-visible,
+.panel select:focus-visible {
+  outline: 3px solid #ffd60a;
+  outline-offset: 2px;
+}
+
+.panel button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.row label {
+  margin: 0;
+}
+
+.row input,
+.row select {
+  width: auto;
+}
+
+.stop {
+  margin-top: 1rem;
+  border-top: 1px solid #333;
+}
+
+.danger {
+  background: #8b0000 !important;
+  border-color: #ff4d4d !important;
+  font-weight: 700;
+}
+
+.status {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #9ad;
+}
+
+.error {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #ff8080;
+}
+
+.round {
+  margin-top: 1rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border-bottom: 1px solid #333;
+  padding: 0.3rem;
+  text-align: left;
+}
+
+.table tr[aria-current="true"] {
+  background: #1f3d1f;
+}
+
+.badge {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  border: 1px solid #555;
+  padding: 0 0.3rem;
+}
+
+.mono {
+  font-family: ui-monospace, monospace;
+  font-size: 1.2rem;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+}
+
+.list li {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #222;
+}
+
+.small {
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
