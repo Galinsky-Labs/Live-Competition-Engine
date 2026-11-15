@@ -52,3 +52,26 @@ export async function currentAccount() {
     throw error;
   }
 }
+
+/** Server-component helper: authorizes the cookie session for an action, returning null instead of throwing. */
+export async function pagePrincipal(action: ProtectedAction, scope: { organizationId?: string; competitionId?: string }) {
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  if (!token) return null;
+  try {
+    return await getAuth().authorizeAction(`Bearer ${token}`, action, scope);
+  } catch (error) {
+    if (error instanceof AuthenticationError) return null;
+    throw error;
+  }
+}
+
+export async function pageAccount() {
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  if (!token) return null;
+  try {
+    return await getAuth().authorize(`Bearer ${token}`);
+  } catch (error) {
+    if (error instanceof AuthenticationError) return null;
+    throw error;
+  }
+}
