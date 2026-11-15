@@ -11,7 +11,12 @@
     "./tenant-brand-assets": "./src/tenant-brand-assets.ts",
     "./tenant-domains": "./src/tenant-domains.ts",
     "./feature-flags": "./src/feature-flags.ts",
-    "./entitlements": "./src/entitlements.ts"
+    "./entitlements": "./src/entitlements.ts",
+    "./media-library": "./src/media-library.ts",
+    "./media-http": "./src/media-http.ts",
+    "./media-worker": "./src/media-worker.ts",
+    "./media-moderation-http": "./src/media-moderation-http.ts",
+    "./media-versions-http": "./src/media-versions-http.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
