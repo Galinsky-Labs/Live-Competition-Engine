@@ -127,6 +127,13 @@
       "when": 1792377000000,
       "tag": "0017_timers_control_room",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792377600000,
+      "tag": "0018_audience_voting",
+      "breakpoints": true
     }
   ]
 }

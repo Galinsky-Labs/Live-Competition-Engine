@@ -52,3 +52,20 @@ export async function addMemberByEmail(organizationId: string, actorAccountId: s
     return account.id;
   });
 }
+
+/**
+ * Bootstrap: accounts whose email is listed in PLATFORM_OPERATOR_EMAILS receive the platform_operator
+ * role on sign-in (audited, idempotent). Removing an email does not revoke an existing grant.
+ */
+export async function ensurePlatformOperator(accountId: string, email: string, allowList: string | undefined): Promise<boolean> {
+  const allowed = (allowList ?? "").split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
+  if (!allowed.includes(email.toLowerCase())) return false;
+  const sql = getSqlClient();
+  return sql.begin(async tx => {
+    const [existing] = await tx`SELECT 1 FROM role_grants WHERE account_id = ${accountId} AND role = 'platform_operator' AND revoked_at IS NULL`;
+    if (existing) return true;
+    await tx`INSERT INTO role_grants (account_id, role, granted_by_account_id) VALUES (${accountId}, 'platform_operator', ${accountId})`;
+    await recordAudit(tx, { organizationId: null, actorAccountId: accountId, action: "platform.operator_bootstrapped", subjectType: "account", subjectId: accountId });
+    return true;
+  });
+}
