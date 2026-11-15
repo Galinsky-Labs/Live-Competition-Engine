@@ -19,5 +19,11 @@ services:
         sync: false
       - key: DATABASE_MIGRATION_URL # Neon direct connection string (migrations)
         sync: false
+      - key: STREAMING_PROVIDER # disabled (default) | external_embed (no keys) | mux
+        value: external_embed
+      - key: MUX_TOKEN_ID # optional, enables the Mux adapter
+        sync: false
+      - key: MUX_TOKEN_SECRET
+        sync: false
       - key: APP_URL
         value: https://live-competition-engine.onrender.com

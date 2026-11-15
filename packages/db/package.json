@@ -23,7 +23,8 @@
     "./events": "./src/events.ts",
     "./stages": "./src/stages.ts",
     "./registration": "./src/registration.ts",
-    "./judging": "./src/judging.ts"
+    "./judging": "./src/judging.ts",
+    "./streams-backstage": "./src/streams-backstage.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
