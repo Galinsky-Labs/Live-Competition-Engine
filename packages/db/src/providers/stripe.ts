@@ -220,6 +220,7 @@ export class StripePaymentProvider implements PaymentProvider {
       success_url: input.successUrl,
       cancel_url: input.cancelUrl,
       client_reference_id: input.orderId,
+      ...(input.expiresAt ? { expires_at: Math.floor(input.expiresAt.getTime() / 1000) } : {}),
       line_items: [{ quantity: 1, price_data: { currency: input.currency.toLowerCase(), unit_amount: input.amountMinor, product_data: { name: input.description } } }],
       metadata,
       payment_intent_data: { metadata }

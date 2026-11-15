@@ -1,5 +1,6 @@
 import type { PaymentHooks } from "./payments.ts";
 import { splitHooks } from "./revenue-splits.ts";
+import { ticketingHooks } from "./ticketing.ts";
 
 /**
  * Run several hook sets in order. onSucceeded/onFailed/onRefunded run for every
@@ -37,5 +38,5 @@ export function composeHooks(...sets: PaymentHooks[]): PaymentHooks {
  * refund endpoints pass these hooks so every path applies the same effects.
  */
 export function fulfillmentHooks(): PaymentHooks {
-  return composeHooks(splitHooks);
+  return composeHooks(splitHooks, ticketingHooks);
 }

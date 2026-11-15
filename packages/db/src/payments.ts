@@ -411,7 +411,8 @@ export async function startCheckout(
   organizationId: string,
   orderId: string,
   provider: PaymentProvider,
-  urls: { successUrl: string; cancelUrl: string }
+  urls: { successUrl: string; cancelUrl: string },
+  expiresAt?: Date
 ): Promise<{ order: PaymentOrder; redirectUrl: string }> {
   const order = await getPaymentOrder(organizationId, orderId);
   if (!order) throw new DomainError("order_not_found");
@@ -421,7 +422,7 @@ export async function startCheckout(
   const session = await provider.createCheckout({
     organizationId, orderId, amountMinor: order.amountMinor, currency: order.currency,
     description: order.description, successUrl: urls.successUrl, cancelUrl: urls.cancelUrl,
-    idempotencyKey: `checkout:${order.id}`
+    idempotencyKey: `checkout:${order.id}`, ...(expiresAt ? { expiresAt } : {})
   });
   const updated = await getSqlClient().begin(async tx => {
     const locked = await lockOrder(tx, organizationId, orderId);
@@ -434,17 +435,26 @@ export async function startCheckout(
   return { order: updated, redirectUrl: session.redirectUrl };
 }
 
+/** Cancel an unpaid order inside the caller's transaction (runs onFailed hooks). */
+export async function cancelOrderInTransaction(
+  tx: Sql,
+  organizationId: string,
+  orderId: string,
+  reason: string,
+  hooks: PaymentHooks = {}
+): Promise<PaymentOrder> {
+  const order = await lockOrder(tx, organizationId, orderId);
+  if (!order) throw new DomainError("order_not_found");
+  if (order.status === "cancelled") return order;
+  if (!canTransitionOrder(order.status, "cancelled")) throw new DomainError("invalid_state_order_closed");
+  const done = await transitionOrder(tx, order, "cancelled", reason);
+  await hooks.onFailed?.(tx, done);
+  return done;
+}
+
 /** Buyer- or operator-initiated cancellation of an unpaid order. */
 export async function cancelPaymentOrder(organizationId: string, orderId: string, hooks: PaymentHooks = {}): Promise<PaymentOrder> {
-  return getSqlClient().begin(async tx => {
-    const order = await lockOrder(tx, organizationId, orderId);
-    if (!order) throw new DomainError("order_not_found");
-    if (order.status === "cancelled") return order;
-    if (!canTransitionOrder(order.status, "cancelled")) throw new DomainError("invalid_state_order_closed");
-    const done = await transitionOrder(tx, order, "cancelled", "cancelled_by_request");
-    await hooks.onFailed?.(tx, done);
-    return done;
-  });
+  return getSqlClient().begin(tx => cancelOrderInTransaction(tx, organizationId, orderId, "cancelled_by_request", hooks));
 }
 
 /* ------------------------------------------------------------------ */

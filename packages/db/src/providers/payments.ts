@@ -14,6 +14,8 @@ export interface CheckoutInput {
   successUrl: string;
   cancelUrl: string;
   idempotencyKey: string;
+  /** Provider-side session expiry aligned with capacity holds (Stripe allows 30 min to 24 h). */
+  expiresAt?: Date;
 }
 
 export interface SubscriptionCheckoutInput {

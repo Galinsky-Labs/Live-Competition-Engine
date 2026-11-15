@@ -45,7 +45,12 @@ describe("feature flag API with PostgreSQL authorization and audit", () => {
       expect(decisionResponse.status).toBe(200);
       const decision = await decisionResponse.json();
       expect(decision.context.accountId).toBe(actor);
-      expect(decision.enabled).toBe(false); // platform remains disabled
+      // The tenant flag is on and nothing vetoes it, so the decision follows the shared
+      // platform row (other test files may legitimately enable ticketing platform-wide).
+      const [platform] = await sql<{ enabled: boolean }[]>`
+        SELECT enabled FROM feature_flags WHERE scope_key = 'platform' AND feature = 'ticketing'
+      `;
+      expect(decision.enabled).toBe(platform?.enabled === true);
       const audit = await sql<{ account_id: string }[]>`
         SELECT account_id FROM feature_decision_audit
         WHERE organization_id = ${org} AND feature = 'ticketing'
