@@ -6,3 +6,4 @@ export * from "./brackets.ts";
 export * from "./registration.ts";
 export * from "./scoring.ts";
 export * from "./streaming.ts";
+export * from "./timer.ts";

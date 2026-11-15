@@ -90,3 +90,5 @@ th, td { text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid #262
 .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; border: 1px solid #404040; font-size: 0.8rem; }
 .action { display: inline-flex; gap: 0.4rem; align-items: center; margin-right: 0.5rem; }
 .big-clock { font-size: clamp(3rem, 12vw, 9rem); font-variant-numeric: tabular-nums; font-weight: 800; }
+.broadcast { text-align: center; padding-top: 2rem; }
+.caption { font-size: 1.5rem; min-height: 2rem; }

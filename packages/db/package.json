@@ -24,7 +24,8 @@
     "./stages": "./src/stages.ts",
     "./registration": "./src/registration.ts",
     "./judging": "./src/judging.ts",
-    "./streams-backstage": "./src/streams-backstage.ts"
+    "./streams-backstage": "./src/streams-backstage.ts",
+    "./control-room": "./src/control-room.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
