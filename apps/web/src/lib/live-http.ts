@@ -68,14 +68,16 @@ export function publicJson(
   request: Request,
   stableBody: Record<string, unknown>,
   volatile: Record<string, unknown> = {},
-  options: { maxAgeSeconds?: number } = {}
+  options: { maxAgeSeconds?: number; headers?: Record<string, string> } = {}
 ): Response {
   const etag = `"${createHash("sha256").update(JSON.stringify(stableBody)).digest("base64url").slice(0, 32)}"`;
   const headers = {
     "cache-control": `public, max-age=${options.maxAgeSeconds ?? 1}, stale-while-revalidate=2`,
     etag,
     "x-content-type-options": "nosniff",
-    "access-control-allow-origin": "*"
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "etag, x-server-now",
+    ...options.headers
   };
   const ifNoneMatch = request.headers.get("if-none-match");
   if (ifNoneMatch && ifNoneMatch.split(",").map(tag => tag.trim()).includes(etag)) {

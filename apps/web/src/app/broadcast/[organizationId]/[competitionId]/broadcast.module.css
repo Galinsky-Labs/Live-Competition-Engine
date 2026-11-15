@@ -1,0 +1,159 @@
+.root {
+  min-height: 100vh;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.stage {
+  position: relative;
+  min-height: 100vh;
+  padding: 3vh 3vw;
+}
+
+.nowCard {
+  display: inline-block;
+  padding: 1rem 1.5rem;
+  background: rgba(0, 0, 0, 0.7);
+  border-left: 6px solid #ffd60a;
+  animation: slide-in 400ms ease-out;
+}
+
+.kicker {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #ffd60a;
+}
+
+.name {
+  margin: 0.25rem 0 0;
+  font-size: 2.5rem;
+  font-weight: 800;
+}
+
+.timer {
+  position: absolute;
+  top: 3vh;
+  right: 3vw;
+  padding: 0.5rem 1rem;
+  background: rgba(0, 0, 0, 0.7);
+  font-family: ui-monospace, monospace;
+  font-size: 3.5rem;
+  font-variant-numeric: tabular-nums;
+  transition: color 300ms;
+}
+
+.overtime {
+  color: #ff5c5c;
+}
+
+.paused {
+  font-size: 1rem;
+  text-transform: uppercase;
+}
+
+.notice {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: rgba(0, 0, 0, 0.7);
+  font-size: 1.5rem;
+}
+
+.lowerThird {
+  position: absolute;
+  left: 3vw;
+  bottom: 12vh;
+  max-width: 60vw;
+  padding: 0.75rem 1.5rem;
+  background: rgba(10, 10, 10, 0.85);
+  border-left: 6px solid #ffd60a;
+  animation: slide-in 400ms ease-out;
+}
+
+.ltTitle {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.ltSubtitle {
+  margin: 0.25rem 0 0;
+  font-size: 1.25rem;
+  color: #ddd;
+}
+
+.caption {
+  position: absolute;
+  left: 50%;
+  bottom: 3vh;
+  transform: translateX(-50%);
+  max-width: 80vw;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  background: rgba(0, 0, 0, 0.8);
+  font-size: 1.75rem;
+  text-align: center;
+}
+
+.scoreboard {
+  width: min(60rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.boardTitle {
+  max-width: none;
+  font-size: 2.5rem;
+  letter-spacing: -0.02em;
+}
+
+.table {
+  width: 100%;
+  margin-top: 1.5rem;
+  border-collapse: collapse;
+  background: rgba(0, 0, 0, 0.7);
+  font-size: 1.5rem;
+}
+
+.table caption {
+  padding: 0.5rem;
+  text-align: left;
+  font-weight: 800;
+  color: #ffd60a;
+}
+
+.table th,
+.table td {
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid #333;
+  text-align: left;
+}
+
+/* Visually hidden but available to assistive technology. */
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@keyframes slide-in {
+  from { transform: translateX(-2rem); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nowCard,
+  .lowerThird {
+    animation: none;
+  }
+
+  .timer {
+    transition: none;
+  }
+}
