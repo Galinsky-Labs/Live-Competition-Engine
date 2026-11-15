@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { DomainError } from "./index.ts";
+import { advancementContractSchema } from "./advancement.ts";
 
 /**
  * LC-14 contest template configuration: a validated, domain-neutral description of
@@ -22,8 +23,8 @@ export const phaseRuleSchema = z.strictObject({
   customKind: text(60).optional(),
   timed: z.boolean(),
   durationSeconds: z.int().min(1).max(7 * 24 * 3600).optional(),
-  /** Free advancement description: top-N, threshold, manual or bracket (validated in LC-15). */
-  advancement: z.unknown().optional()
+  /** LC-15 advancement contract: top-N, score threshold, manual or bracket. */
+  advancement: advancementContractSchema.optional()
 }).superRefine((phase, ctx) => {
   if (phase.timed !== (phase.durationSeconds !== undefined)) {
     ctx.addIssue({ code: "custom", message: "timed phases need durationSeconds; untimed must omit it", path: ["durationSeconds"] });

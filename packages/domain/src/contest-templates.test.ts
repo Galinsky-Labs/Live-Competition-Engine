@@ -67,6 +67,11 @@ describe("contest template config", () => {
     group.format.participation = "group";
     expect(issuesOf(group)).toContain("format.groupSize");
     expect(issuesOf({ ...clone(), phases: [] })).toContain("phases");
+    const advancement = clone();
+    advancement.phases[0].advancement = { type: "top_n", count: 8, ties: "include" };
+    expect(issuesOf(advancement)).toEqual([]);
+    advancement.phases[0].advancement = { type: "top_n", count: 0, ties: "include" };
+    expect(issuesOf(advancement).some(path => path.startsWith("phases.0.advancement"))).toBe(true);
   });
 
   it("validates names and when templates may be applied", () => {
