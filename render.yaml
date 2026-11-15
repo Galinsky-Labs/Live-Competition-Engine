@@ -25,5 +25,9 @@ services:
         sync: false
       - key: MUX_TOKEN_SECRET
         sync: false
+      - key: VOTE_NETWORK_SECRET # random 32-byte hex; keys daily network fingerprints for vote anomaly checks
+        sync: false
+      - key: PLATFORM_OPERATOR_EMAILS # comma-separated emails granted platform_operator at sign-in
+        sync: false
       - key: APP_URL
         value: https://live-competition-engine.onrender.com

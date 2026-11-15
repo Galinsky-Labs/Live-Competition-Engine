@@ -5,6 +5,7 @@ import type { TransactionSql } from "postgres";
 import { getSqlClient } from "./index.ts";
 import { recordAudit } from "./audit.ts";
 import { lockEvent } from "./events.ts";
+import { stageAudienceShares } from "./audience-voting.ts";
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const requireId = (value: unknown, code: string) => {
@@ -201,9 +202,9 @@ export async function listSheets(organizationId: string, eventId: string, stageI
   return rows.map(r => ({ id: r.id, performanceId: r.performance_id, entryId: r.entry_id, judgeId: r.judge_id, scores: r.scores, total: Number(r.total), supersedesId: r.supersedes_id, correctionReason: r.correction_reason, submittedAt: r.submitted_at, current: r.current }));
 }
 
-/** Audience share provider (LC-28 voting registers itself here). */
+/** Audience share provider (LC-28 voting: weighted share of closed vote windows for the stage). */
 export const audienceShares: { forStage: (organizationId: string, eventId: string, stageId: string) => Promise<Map<string, number>> } = {
-  forStage: async () => new Map()
+  forStage: stageAudienceShares
 };
 
 /** Deterministic standings for a stage from current (non-superseded) sheets of accepted, non-recused judges. */

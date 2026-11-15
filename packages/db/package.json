@@ -25,7 +25,8 @@
     "./registration": "./src/registration.ts",
     "./judging": "./src/judging.ts",
     "./streams-backstage": "./src/streams-backstage.ts",
-    "./control-room": "./src/control-room.ts"
+    "./control-room": "./src/control-room.ts",
+    "./audience-voting": "./src/audience-voting.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

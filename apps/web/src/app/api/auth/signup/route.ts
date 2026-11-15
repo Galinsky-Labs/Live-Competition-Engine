@@ -1,4 +1,5 @@
-import { CredentialError } from "@live-competition-engine/auth/credentials";
+import { CredentialError, normalizeEmail } from "@live-competition-engine/auth/credentials";
+import { ensurePlatformOperator } from "@live-competition-engine/db/organizations";
 import { errorResponse, readJsonObject, route, sessionCookie } from "@/lib/http";
 import { getCredentials, secureCookies } from "@/lib/server-auth";
 
@@ -8,6 +9,7 @@ export const POST = route(async (request: Request) => {
   const body = await readJsonObject(request, 4096);
   try {
     const result = await getCredentials().signUp(body.email, body.password);
+    await ensurePlatformOperator(result.accountId, normalizeEmail(body.email) ?? "", process.env.PLATFORM_OPERATOR_EMAILS);
     const response = Response.json(
       { accountId: result.accountId, expiresAt: result.session.expiresAt, ...(body.mode === "token" ? { token: result.token } : {}) },
       { status: 201 }

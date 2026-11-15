@@ -8,7 +8,7 @@ import { parseServerEnv } from "@live-competition-engine/config";
 import { closeDatabaseConnection } from "./index.ts";
 import { createPostgresAuthStore } from "./auth-store.ts";
 import { accountSummary, createPostgresCredentialStore } from "./credential-store.ts";
-import { addMemberByEmail, createOrganization, OrganizationError } from "./organizations.ts";
+import { addMemberByEmail, createOrganization, ensurePlatformOperator, OrganizationError } from "./organizations.ts";
 
 test("password sign-up, login, tenant creation and append-only audit", async () => {
   const sql = postgres(parseServerEnv().DATABASE_URL, { max: 1 });
@@ -39,6 +39,10 @@ test("password sign-up, login, tenant creation and append-only audit", async () 
     const [audit] = await sql<{ id: string }[]>`SELECT id FROM engine_audit_log WHERE organization_id = ${org.id} ORDER BY id LIMIT 1`;
     await assert.rejects(sql`UPDATE engine_audit_log SET action = 'x.y' WHERE id = ${audit!.id}`, /append-only/);
     await assert.rejects(sql`DELETE FROM engine_audit_log WHERE id = ${audit!.id}`, /append-only/);
+    assert.equal(await ensurePlatformOperator(other.accountId, otherEmail, "someone@else.test"), false);
+    assert.equal(await ensurePlatformOperator(other.accountId, otherEmail, ` ${otherEmail.toUpperCase()} , x@y.test`), true);
+    assert.equal(await ensurePlatformOperator(other.accountId, otherEmail, otherEmail), true, "idempotent");
+    assert.equal((await auth.authorizeAction(`Bearer ${other.token}`, "platform.manage")).role, "platform_operator");
     const [attempts] = await sql<{ n: number }[]>`SELECT count(*)::int AS n FROM login_attempts WHERE email_hash = ${email}`;
     assert.equal(attempts!.n, 0, "attempt log never stores raw email");
   } finally {
