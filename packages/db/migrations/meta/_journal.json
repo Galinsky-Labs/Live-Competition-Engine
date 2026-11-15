@@ -99,6 +99,13 @@
       "when": 1792374600000,
       "tag": "0061_feature_ceilings",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1792375200000,
+      "tag": "0062_moderation",
+      "breakpoints": true
     }
   ]
 }

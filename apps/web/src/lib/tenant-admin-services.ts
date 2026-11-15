@@ -1,5 +1,6 @@
 import * as tenantAdmin from "@live-competition-engine/db/tenant-admin";
 import { billingSection, moderationSection } from "@live-competition-engine/db/admin-overview";
+import { moderationOverviewCounts } from "@live-competition-engine/db/moderation";
 import { createTenantAdminHandlers, type TenantAdminService } from "../app/api/organizations/[organizationId]/admin/handlers";
 import { authService } from "./services";
 
@@ -20,7 +21,8 @@ export const tenantAdminService: TenantAdminService = {
   assignCompetitionVenue: tenantAdmin.assignCompetitionVenue,
   showOverview: org => tenantAdmin.showOverview(org),
   billingSection: org => billingSection(org),
-  moderationSection: org => moderationSection(org)
+  // LC-46 provides the moderation counts.
+  moderationSection: org => moderationSection(org, { counts: moderationOverviewCounts })
 };
 
 let handlers: ReturnType<typeof createTenantAdminHandlers> | undefined;
