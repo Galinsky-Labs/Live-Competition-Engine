@@ -14,6 +14,29 @@ type VoteWindow = {
   myBallot?: { receipt: string } | null;
 };
 
+const hex = (bytes: Uint8Array) => Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+const unhex = (value: string) => new Uint8Array((value.match(/../g) ?? []).map(pair => parseInt(pair, 16)));
+async function digest(...parts: Uint8Array[]): Promise<Uint8Array> {
+  const joined = new Uint8Array(parts.reduce((sum, part) => sum + part.length, 0));
+  let offset = 0;
+  for (const part of parts) {
+    joined.set(part, offset);
+    offset += part.length;
+  }
+  return new Uint8Array(await crypto.subtle.digest("SHA-256", joined));
+}
+
+/** Client-side Merkle check (same construction as packages/domain/src/merkle.ts): no trust in the server's verdict. */
+async function verifyProof(commitment: string, path: { side: "left" | "right"; hash: string }[], root: string): Promise<boolean> {
+  let node = await digest(new Uint8Array([0]), unhex(commitment));
+  for (const step of path) {
+    node = step.side === "right"
+      ? await digest(new Uint8Array([1]), node, unhex(step.hash))
+      : await digest(new Uint8Array([1]), unhex(step.hash), node);
+  }
+  return hex(node) === root;
+}
+
 type Results = { visible: boolean; tally?: { rows: { optionId: string; score: number; rank: number }[] } };
 
 function BallotForm({ window, onSubmit }: { window: VoteWindow; onSubmit: (choice: unknown) => Promise<void> }) {
@@ -115,6 +138,19 @@ export function VotingPanel({ base, token, onStatus }: { base: string; token: st
     await refresh();
   };
 
+  const verify = async (windowId: string, receipt: string) => {
+    const result = await api(`${base}/voting/windows/${windowId}/proof?receipt=${encodeURIComponent(receipt)}`);
+    if (!result.ok) {
+      onStatus(describeError(result));
+      return;
+    }
+    const proof = result.body as { included: boolean; commitment: string; path: { side: "left" | "right"; hash: string }[]; merkleRoot: string; snapshotVersion: number };
+    const valid = proof.included && await verifyProof(proof.commitment, proof.path, proof.merkleRoot);
+    onStatus(valid
+      ? `Verified: your ballot is included in count version ${proof.snapshotVersion} (root ${proof.merkleRoot.slice(0, 16)}…).`
+      : `Your ballot is not included in count version ${proof.snapshotVersion}.`);
+  };
+
   return (
     <section aria-labelledby="voting-heading" className={styles.card}>
       <h2 id="voting-heading">Voting</h2>
@@ -127,7 +163,14 @@ export function VotingPanel({ base, token, onStatus }: { base: string; token: st
             <h3>{window.label}</h3>
             <p>Status: {window.phase}{window.phase === "open" ? ` (closes ${new Date(window.closesAt).toLocaleString()})` : ""}</p>
             {window.phase === "open" && !receipt ? <BallotForm window={window} onSubmit={choice => cast(window.id, choice)} /> : null}
-            {receipt ? <p>Your receipt: <code>{receipt}</code></p> : null}
+            {receipt ? (
+              <p>
+                Your receipt: <code>{receipt}</code>{" "}
+                {window.phase === "closed" ? (
+                  <button type="button" onClick={() => verify(window.id, receipt)}>Verify my vote was counted</button>
+                ) : null}
+              </p>
+            ) : null}
             {tally ? (
               <table>
                 <caption>Results</caption>

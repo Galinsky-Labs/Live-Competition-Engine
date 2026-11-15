@@ -27,10 +27,13 @@ import { PostgresEntitlementStore } from "./entitlements.ts";
 import { requireEnabledFeature } from "./feature-guard.ts";
 import { getSqlClient } from "./index.ts";
 import { consumeRateLimit, type RateLimitRule } from "./rate-limit.ts";
+import { detectAndStoreAnomalies } from "./vote-anomaly-store.ts";
 import { writeTallySnapshot, type TallySnapshot } from "./vote-snapshots.ts";
 
 /** Per-account ballot submission limit (abuse control; see LC-29 docs). */
 export const ballotRateLimit: RateLimitRule = { limit: 10, windowMs: 60_000, mode: "fixed" };
+/** Velocity check: sustained ballot submissions per account per hour across the tenant (LC-29). */
+export const ballotVelocityLimit: RateLimitRule = { limit: 60, windowMs: 3_600_000, mode: "sliding" };
 
 export interface VoteOptionView {
   id: string;
@@ -253,9 +256,11 @@ export async function closeVoteWindow(
       WHERE organization_id = ${organizationId} AND id = ${windowId}
     `;
     const written = await writeTallySnapshot(tx, { organizationId, windowId, method: row.tally_method, actorAccountId, reason: "close" });
+    // Anomaly detectors run at close; they only store flags for review.
+    const flagged = await detectAndStoreAnomalies(tx, organizationId, windowId, row.opens_at);
     await recordAudit(tx, {
       organizationId, actorAccountId, action: "voting.window_closed", subjectType: "vote_window", subjectId: windowId,
-      details: { competitionId, early: now.getTime() < row.closes_at.getTime(), snapshotVersion: written.version, merkleRoot: written.merkleRoot, ballotCount: written.ballotCount }
+      details: { competitionId, early: now.getTime() < row.closes_at.getTime(), snapshotVersion: written.version, merkleRoot: written.merkleRoot, ballotCount: written.ballotCount, newAnomalyFlags: flagged }
     });
     return written;
   });
@@ -406,6 +411,7 @@ export async function castBallot(
     const active = prior.find(ballot => ballot.status === "active");
     if (active && !rules.allowChange) throw new DomainError("vote_conflict");
     await consumeRateLimit(tx, { organizationId, accountId: voter.accountId, action: "voting.ballot" }, ballotRateLimit, now);
+    await consumeRateLimit(tx, { organizationId, accountId: voter.accountId, action: "voting.ballot_velocity" }, ballotVelocityLimit, now);
     if (active) {
       await tx`UPDATE vote_ballots SET status = 'superseded', superseded_at = ${now} WHERE organization_id = ${organizationId} AND id = ${active.id}`;
     }
