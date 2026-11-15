@@ -1,0 +1,69 @@
+.console {
+  width: min(72rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+  line-height: 1.5;
+}
+
+.console h1 {
+  max-width: none;
+  font-size: 2rem;
+  line-height: 1.2;
+  letter-spacing: normal;
+}
+
+.console h2 {
+  margin-top: 2rem;
+  font-size: 1.25rem;
+}
+
+.nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.nav a,
+.console a {
+  color: #9fd3ff;
+}
+
+.nav a:focus-visible,
+.console a:focus-visible {
+  outline: 3px solid #ffd166;
+  outline-offset: 2px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border-bottom: 1px solid #333;
+  padding: 0.5rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.counts li {
+  border: 1px solid #444;
+  padding: 0.5rem 0.75rem;
+}
+
+.notice {
+  border-left: 4px solid #ffd166;
+  padding: 0.5rem 1rem;
+  background: #1b1b1b;
+}

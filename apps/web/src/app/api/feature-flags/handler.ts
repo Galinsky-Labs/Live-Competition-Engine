@@ -46,6 +46,10 @@ export function createFeatureHandlers(authorizer: Authorizer, save: Save, evalua
         });
         return Response.json({ revision });
       } catch (cause) {
+        const code = (cause as { code?: unknown } | null)?.code;
+        if (code === "feature_locked_by_platform") return error(403, code);
+        if (code === "revision_conflict") return error(409, code);
+        if (code === "invalid_feature_scope" || code === "organization_not_found") return error(400, "invalid_feature_scope");
         if (cause instanceof Error && /revision conflict/.test(cause.message)) return error(409, "revision_conflict");
         if (cause instanceof Error && /Invalid |Unexpected |scope denied/.test(cause.message)) return error(400, "invalid_feature_scope");
         throw cause;

@@ -36,5 +36,7 @@ services:
         sync: false
       - key: POSTMARK_SERVER_TOKEN
         sync: false
+      - key: POSTMARK_WEBHOOK_SECRET
+        generateValue: true
       - key: EMAIL_FROM_DEFAULT
         sync: false

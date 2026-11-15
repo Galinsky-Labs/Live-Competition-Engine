@@ -202,20 +202,62 @@
       "idx": 28,
       "version": "7",
       "when": 1792383600000,
-      "tag": "0080_saas_plans",
+      "tag": "0060_tenant_admin",
       "breakpoints": true
     },
     {
       "idx": 29,
       "version": "7",
       "when": 1792384200000,
-      "tag": "0081_tenant_signup",
+      "tag": "0061_feature_ceilings",
       "breakpoints": true
     },
     {
       "idx": 30,
       "version": "7",
       "when": 1792384800000,
+      "tag": "0062_moderation",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1792385400000,
+      "tag": "0063_cms",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1792386000000,
+      "tag": "0064_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1792386600000,
+      "tag": "0065_white_label_email",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1792387200000,
+      "tag": "0080_saas_plans",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1792387800000,
+      "tag": "0081_tenant_signup",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1792388400000,
       "tag": "0082_platform_admin",
       "breakpoints": true
     }

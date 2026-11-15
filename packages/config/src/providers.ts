@@ -12,6 +12,7 @@ export const providerEnvSchema = z.object({
   MUX_TOKEN_SECRET: z.string().min(1).optional(),
   MUX_WEBHOOK_SECRET: z.string().min(1).optional(),
   POSTMARK_SERVER_TOKEN: z.string().min(1).optional(),
+  POSTMARK_WEBHOOK_SECRET: z.string().min(32).optional(),
   EMAIL_FROM_DEFAULT: z.string().email().optional(),
   JOB_WORKER_SECRET: z.string().min(32).optional(),
   SIGNUP_IP_HASH_KEY: z.string().min(32).optional()
