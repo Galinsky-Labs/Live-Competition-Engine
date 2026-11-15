@@ -20,7 +20,8 @@
     "@live-competition-engine/config": "0.1.0",
     "drizzle-orm": "^0.44.0",
     "postgres": "^3.4.0",
-    "@live-competition-engine/domain": "0.1.0"
+    "@live-competition-engine/domain": "0.1.0",
+    "@live-competition-engine/profiles": "0.1.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
