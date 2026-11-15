@@ -98,6 +98,29 @@ fulfilled (the customer paid).
 * `packages/db/src/stripe-provider.test.ts` — signature verification, event normalization, request encoding.
 * `apps/web/src/app/api/webhooks/stripe/handler.test.ts`, `…/payments/handler.test.ts`.
 
+## Owner setup required for real payments
+
+Environment variables (all validated in `packages/config/src/providers.ts`):
+
+| Variable | Purpose |
+| --- | --- |
+| `STRIPE_SECRET_KEY` (`sk_live_…` / `sk_test_…`) | API calls (Checkout, Refunds, Subscriptions, Charges) |
+| `STRIPE_WEBHOOK_SECRET` (`whsec_…`) | `Stripe-Signature` verification |
+| `APP_URL` | builds `success_url` / `cancel_url` (`{APP_URL}/checkout/{org}/return|cancelled`) |
+| `JOB_WORKER_SECRET` (≥ 32 chars) | bearer for `POST /api/platform/jobs/payments` (run every ~5 min: releases expired ticket holds, expires lapsed subscriptions) |
+
+Stripe dashboard:
+
+* No Products/Prices need to be pre-created: Checkout uses inline `price_data` (one-off and
+  recurring) built from engine records.
+* Webhook endpoint: `{APP_URL}/api/webhooks/stripe`, API version `2024-06-20` (matches the pinned
+  `Stripe-Version`; newer `parent.subscription_details` invoice shapes are also parsed), events:
+  `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
+  `checkout.session.async_payment_failed`, `checkout.session.expired`, `refund.created`,
+  `refund.updated`, `refund.failed`, `charge.refund.updated`, `charge.dispute.created`,
+  `invoice.paid`, `invoice.payment_failed`, `customer.subscription.deleted`.
+* Without these values every paid path returns `503 provider_not_configured`; free tickets still work.
+
 ## Not claimed
 
 Real Stripe behavior, 3-D Secure flows, payouts to bank accounts, multi-currency FX, tax and

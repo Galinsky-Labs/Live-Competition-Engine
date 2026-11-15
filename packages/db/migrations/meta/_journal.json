@@ -120,6 +120,13 @@
       "when": 1792376400000,
       "tag": "0054_content_paywalls",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792377000000,
+      "tag": "0055_tips_gifts",
+      "breakpoints": true
     }
   ]
 }
