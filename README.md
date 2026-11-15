@@ -85,3 +85,11 @@ A core concept belongs in this repository only if it can be described without kn
 
 The canonical [security/e2eesa-status.json](security/e2eesa-status.json) records standard implementation, complete testing and independent expert review separately. Engine Room reads it automatically from GitHub. All initial stages are pending; existing profile locks and approved decisions remain authoritative. Read [adoption and independent-account instructions](docs/E2EESA_ADOPTION.md), and run `python3 scripts/validate_e2eesa_status.py`. Record validation does not establish product security or certification.
 
+
+## Hosted deployment (Render + Neon)
+
+`render.yaml` documents the free Render web service `live-competition-engine`.
+Build: `npm install && npm run build`. Start: `npm run db:migrate && npm run start -w @live-competition-engine/web`
+(migrations run at boot; Next.js binds `0.0.0.0:$PORT`). Health check: `/api/health`.
+Environment: `DATABASE_URL` (Neon pooled), `DATABASE_MIGRATION_URL` (Neon direct, optional; falls back to `DATABASE_URL`), `APP_URL`.
+`package-lock.json` is committed so CI and Render install the same dependency graph.
