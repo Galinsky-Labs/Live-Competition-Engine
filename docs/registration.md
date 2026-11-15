@@ -1,0 +1,8 @@
+# Applications, selection and running order (LC-17, LC-18)
+
+- Applicants (any signed-in account) submit one application per event while the event is **published** and the configured registration window is open (`registration.opensAt/closesAt`, server clock). Consent is explicit and versioned (`consent.version` must equal the event's `registration.consentVersion`); attached media must be owned by the applicant in the same tenant. Group formats enforce member counts.
+- Applicants may revise (revision-checked) while `submitted`/`under_review`, and withdraw at any time before rejection; withdrawing a selected application withdraws the entry, freeing a slot.
+- Producers (`event.manage`) move applications `submitted → under_review → selected | waitlisted | rejected`. Every decision is revision-checked (concurrent reviewers get `409 revision_conflict`), stored in the append-only `application_decisions` table, and audited. Reversing a selection or rejection requires a reason. Selection creates the entrant (respecting `maxEntrants`, else `409 event_full`); waitlisted applications get ordered positions and `POST applications/promote` selects the next one.
+- Running order: `PUT stages/{id}/lineup` assigns performance slots (`performances`) for a scheduled stage, limited to approved entries that are active stage entrants when the stage is seeded.
+
+API under `/api/organizations/{org}/events/{event}`: `POST applications`, `GET applications/mine`, `PUT applications/{id}`, `POST applications/{id}/withdraw` (applicant); `GET applications`, `POST applications/{id}/decide`, `POST applications/promote`, `GET applications/{id}/history`, `GET|PUT stages/{id}/lineup` (producer; lineup GET is public for non-draft events).
