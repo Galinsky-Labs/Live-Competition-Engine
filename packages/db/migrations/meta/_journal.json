@@ -99,6 +99,13 @@
       "when": 1792374600000,
       "tag": "0031_backstage",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1792375200000,
+      "tag": "0032_stage_timers",
+      "breakpoints": true
     }
   ]
 }
